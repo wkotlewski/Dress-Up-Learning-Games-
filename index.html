@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}*,*::before,*::after{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Zahra's Dress-Up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
+<style>
+/* Layout: one-screen sticker-book playroom. Mode tabs on top, square scene in the middle, three chunky trays below. */
+:root{
+  --ground:#FFE3D3;      /* peach play-mat */
+  --card:#FFF9F3;        /* paper */
+  --ink:#3B1F4A;         /* plum outlines */
+  --pick:#FFC93C;        /* sunny "selected" */
+  --pop:#FF5FA2;         /* pink accent */
+  --soft:#F6CDB9;        /* muted peach for idle bits */
+  --display:"Baloo 2","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{background:var(--ground);color:var(--ink);font-family:var(--display);overflow:hidden;
+  -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;box-sizing:border-box;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  max-width:720px;margin:0 auto}
+button{font-family:var(--display);color:var(--ink);background:var(--card);border:3px solid var(--ink);border-radius:20px;
+  box-shadow:0 4px 0 var(--ink);cursor:pointer;touch-action:manipulation;padding:0;
+  transition:transform .08s,box-shadow .08s,background .15s}
+button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+button:focus-visible{outline:4px solid var(--pop);outline-offset:3px}
+button.on{background:var(--pick)}
+button svg{display:block;margin:0 auto}
+
+.tabs{display:flex;gap:10px;align-items:stretch}
+.tab{flex:1;height:60px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:20px;font-weight:800}
+.tab svg{width:32px;height:32px;margin:0}
+.sound{flex:0 0 52px;height:60px}
+.sound svg{width:28px;height:28px}
+
+.stage{flex:1;min-height:0;display:grid;place-items:center}
+#scene{position:relative;border:4px solid var(--ink);border-radius:28px;overflow:hidden;background:var(--card);
+  box-shadow:0 6px 0 var(--ink);touch-action:none;max-width:100%}
+#scene > *{position:absolute;inset:0;width:100%;height:100%}
+#photo{object-fit:cover}
+#cv{pointer-events:none}
+#camBtn{position:absolute;inset:auto 12px 12px auto;width:72px;height:72px;border-radius:50%;background:var(--pop);color:#fff}
+#camBtn svg{width:38px;height:38px}
+
+.row{display:grid;gap:8px}
+.tools{grid-template-columns:repeat(5,1fr)}
+.tools button{height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:800;line-height:1}
+.tools button svg{width:30px;height:30px;margin-bottom:2px}
+#clearBtn.armed{background:var(--pop);color:#fff}
+
+.colors{grid-template-columns:repeat(8,1fr)}
+.sw{aspect-ratio:1;border-radius:50%;max-height:56px;justify-self:center;width:100%;max-width:56px}
+.sw.on{transform:scale(1.12);box-shadow:0 0 0 4px var(--card),0 0 0 7px var(--ink)}
+.sw.on:active{transform:scale(1.05)}
+
+.ctx{grid-template-columns:repeat(5,1fr)}
+.ctx button{height:64px;display:grid;place-items:center;font-size:36px;font-weight:800;line-height:1}
+.ctx button svg{width:44px;height:44px}
+.ctx .done{opacity:.45}
+.ctx .next{background:var(--pick);animation:bob 1s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+.confetti i{position:absolute;top:-30px;width:16px;height:16px;border-radius:4px;animation:fall 1.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){.ctx .next{animation:none}.confetti i{animation-duration:.01s}button{transition:none}}
+@media (min-width:600px){.tools button{font-size:16px}}
+</style>
+</head>
+<body>
+
+
+<svg id="defs" width="0" height="0" style="position:absolute" aria-hidden="true"><defs></defs></svg>
+
+<div class="app">
+  <div class="tabs" role="tablist">
+    <button class="tab" data-mode="face" aria-label="Face">
+      <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#FFD9C2" stroke="currentColor" stroke-width="3"/><circle cx="14" cy="17" r="2.5" fill="currentColor"/><circle cx="26" cy="17" r="2.5" fill="currentColor"/><path d="M13 25 Q20 31 27 25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Face</button>
+    <button class="tab" data-mode="nails" aria-label="Nails">
+      <svg viewBox="0 0 40 40"><g fill="#FFD9C2" stroke="currentColor" stroke-width="2.5"><rect x="9" y="8" width="6" height="18" rx="3"/><rect x="16" y="5" width="6" height="20" rx="3"/><rect x="23" y="7" width="6" height="18" rx="3"/><rect x="8" y="18" width="24" height="17" rx="7"/></g><g fill="#FF5FA2"><rect x="10.5" y="9" width="3" height="4" rx="1.5"/><rect x="17.5" y="6" width="3" height="4" rx="1.5"/><rect x="24.5" y="8" width="3" height="4" rx="1.5"/></g></svg>Nails</button>
+    <button class="tab" data-mode="shirt" aria-label="Shirt">
+      <svg viewBox="0 0 40 40"><path d="M14 6 L5 11 L2 18 L8 21 L10 18 V35 H30 V18 L32 21 L38 18 L35 11 L26 6 Q20 11 14 6Z" fill="#8FC9FF" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>Shirt</button>
+    <button class="sound" id="soundBtn" aria-label="Sound on or off"></button>
+  </div>
+
+  <div class="stage" id="stage">
+    <div id="scene" aria-label="Play area">
+      <img id="photo" alt="" hidden>
+      <svg id="base" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet"></svg>
+      <canvas id="cv"></canvas>
+      <button id="camBtn" aria-label="Take my picture"><svg viewBox="0 0 40 40"><path d="M6 14 H13 L16 9 H24 L27 14 H34 V32 H6Z" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round"/><circle cx="20" cy="22" r="6" fill="none" stroke="currentColor" stroke-width="3.2"/></svg></button>
+    </div>
+  </div>
+  <input type="file" id="camIn" accept="image/*" capture="user" hidden>
+
+  <div class="row tools">
+    <button data-tool="paint" aria-label="Paint"><svg viewBox="0 0 44 44"><path d="M7 33 C7 27 13 25 16 28 C19 31 17 37 11 37 C8 37 7 35 7 33Z" fill="#FF5FA2" stroke="currentColor" stroke-width="2.5"/><path d="M18 25 L33 8 L38 13 L22 29Z" fill="#FFF9F3" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg><span id="paintLbl">Paint</span></button>
+    <button data-tool="shapes" aria-label="Shapes"><svg viewBox="0 0 44 44"><circle cx="14" cy="27" r="9" fill="#2F86E8" stroke="currentColor" stroke-width="2.5"/><path d="M28 9 L39 30 H17Z" fill="#FFD02E" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></svg>Shapes</button>
+    <button data-tool="letters" aria-label="Letters"><svg viewBox="0 0 44 44"><text x="22" y="33" text-anchor="middle" font-family="Baloo 2,system-ui" font-weight="800" font-size="32" fill="#36B65A" stroke="currentColor" stroke-width="2" paint-order="stroke">Z</text></svg>Name</button>
+    <button id="undoBtn" aria-label="Undo"><svg viewBox="0 0 44 44"><path d="M15 11 L7 19 L15 27 M8 19 H27 C33 19 37 23 37 28 C37 33 33 36 28 36 H21" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Undo</button>
+    <button id="clearBtn" aria-label="Clear all"><svg viewBox="0 0 44 44"><path d="M12 12 L32 32 M32 12 L12 32" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg><span id="clearLbl">Clear</span></button>
+  </div>
+
+  <div class="row colors" id="colors"></div>
+  <div class="row ctx" id="ctx"></div>
+</div>
+
+<script>
+(() => {
+const INK = '#3B1F4A', SKIN = '#D9A07A', NAIL_BARE = '#F7D5C6';
+const COLORS = [['Red','#EE3B45'],['Orange','#FF8C26'],['Yellow','#FFD02E'],['Green','#36B65A'],['Blue','#2F86E8'],['Purple','#8D58D8'],['Pink','#FF6DB0'],['White','#FFFFFF']];
+const SHAPES = ['circle','square','triangle','star','heart'];
+const SHAPE_NAMES = {circle:'Circle',square:'Square',triangle:'Triangle',star:'Star',heart:'Heart'};
+const PATS = ['solid','dots','stripes','stars','hearts'];
+const PAT_NAMES = {solid:'Plain',dots:'Dots',stripes:'Stripes',stars:'Stars',hearts:'Hearts'};
+const NAME = ['Z','A','H','R','A'];
+const NUMS = ['One','Two','Three','Four','Five'];
+const NAILS = [ // centers of each nail, thumb first, counting left to right
+  [132,363],[241,179],[307,139],[373,164],[439,224]];
+
+function starPath(){ let d=''; for(let i=0;i<10;i++){const r=i%2?0.21:0.5, a=-Math.PI/2+i*Math.PI/5; d+=(i?'L':'M')+(r*Math.cos(a)).toFixed(3)+','+(r*Math.sin(a)+0.04).toFixed(3);} return d+'Z'; }
+const PATHS = {
+  square:'M-0.42,-0.42H0.42V0.42H-0.42Z',
+  triangle:'M0,-0.46L0.5,0.42H-0.5Z',
+  star:starPath(),
+  heart:'M0,0.44 C-0.66,0.02 -0.52,-0.56 0,-0.2 C0.52,-0.56 0.66,0.02 0,0.44Z',
+  circle:'M0.46,0 A0.46,0.46 0 1 1 -0.46,0 A0.46,0.46 0 1 1 0.46,0Z'
+};
+const shapeSvg = (k,c,size=44) => `<svg viewBox="-0.6 -0.6 1.2 1.2" width="${size}" height="${size}"><path d="${PATHS[k]}" fill="${c}" stroke="${INK}" stroke-width="0.07" stroke-linejoin="round"/></svg>`;
+
+// ---------- state ----------
+const S = {
+  mode:'face', tool:{face:'paint',nails:'paint',shirt:'paint'},
+  color:6, pat:'solid', shape:'heart', brush:16, letter:0, sound:true,
+  scenes:{ face:{strokes:[],stamps:[]}, nails:{fills:[null,null,null,null,null],stamps:[]}, shirt:{fill:null,stamps:[]} },
+  hist:{face:[],nails:[],shirt:[]}
+};
+const $ = s => document.querySelector(s);
+const scene=$('#scene'), base=$('#base'), cv=$('#cv'), ctx=cv.getContext('2d'), photo=$('#photo');
+const defs=$('#defs defs');
+
+// ---------- sound ----------
+let ac=null;
+function pop(){ if(!S.sound) return; try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+  const o=ac.createOscillator(), g=ac.createGain(); o.type='sine';
+  o.frequency.setValueAtTime(520+Math.random()*300,ac.currentTime); o.frequency.exponentialRampToValueAtTime(1200,ac.currentTime+0.09);
+  g.gain.setValueAtTime(0.18,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.15);
+  o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime+0.16);}catch(e){} }
+function say(t){ if(!S.sound) return; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.rate=0.85; u.pitch=1.25; speechSynthesis.speak(u);}catch(e){} }
+function renderSound(){ $('#soundBtn').innerHTML = `<svg viewBox="0 0 40 40"><path d="M8 16 H14 L22 9 V31 L14 24 H8Z" fill="currentColor"/>${S.sound?'<path d="M27 14 Q31 20 27 26 M31 10 Q38 20 31 30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>':'<path d="M27 15 L36 25 M36 15 L27 25" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>'}</svg>`; }
+
+// ---------- patterns (shared defs) ----------
+function motif(ci){ return ci===7 ? '#FF6DB0' : ci===2 ? '#FF8C26' : '#FFFFFF'; }
+function fillFor(f, size){
+  if(!f) return null;
+  const c = COLORS[f.c][1];
+  if(f.p==='solid') return c;
+  const id = `p_${f.p}_${f.c}_${size}`;
+  if(!document.getElementById(id)){
+    const m = motif(f.c), h=size/2; let inner='';
+    if(f.p==='dots') inner=`<circle cx="${h}" cy="${h}" r="${size*0.2}" fill="${m}"/>`;
+    if(f.p==='stripes') inner=`<rect x="0" y="0" width="${size*0.4}" height="${size}" fill="${m}"/>`;
+    if(f.p==='stars'||f.p==='hearts') inner=`<path d="${PATHS[f.p==='stars'?'star':'heart']}" transform="translate(${h},${h}) scale(${size*0.62})" fill="${m}"/>`;
+    const rot = f.p==='stripes' ? ' patternTransform="rotate(45)"' : '';
+    defs.insertAdjacentHTML('beforeend', `<pattern id="${id}" width="${size}" height="${size}" patternUnits="userSpaceOnUse"${rot}><rect width="${size}" height="${size}" fill="${c}"/>${inner}</pattern>`);
+  }
+  return `url(#${id})`;
+}
+
+// ---------- base pictures ----------
+function faceSvg(){
+  return `<rect width="600" height="600" fill="#FFF1E6"/>
+  <path d="M60,600 C80,500 520,500 540,600Z" fill="#8FC9FF" stroke="${INK}" stroke-width="6"/>
+  <rect x="255" y="470" width="90" height="70" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <circle cx="300" cy="300" r="225" fill="#4A2A22"/>
+  <ellipse cx="128" cy="340" rx="30" ry="42" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <ellipse cx="472" cy="340" rx="30" ry="42" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <ellipse cx="300" cy="335" rx="172" ry="185" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <path d="M128,290 C135,150 245,92 320,105 C425,118 485,190 474,292 C430,215 372,188 300,198 C248,206 196,232 128,290Z" fill="#4A2A22"/>
+  <ellipse cx="235" cy="330" rx="21" ry="27" fill="${INK}"/><circle cx="242" cy="320" r="7" fill="#fff"/>
+  <ellipse cx="365" cy="330" rx="21" ry="27" fill="${INK}"/><circle cx="372" cy="320" r="7" fill="#fff"/>
+  <path d="M290,372 Q300,388 310,372" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
+  <path d="M248,428 Q300,474 352,428" fill="none" stroke="${INK}" stroke-width="7" stroke-linecap="round"/>`;
+}
+function handSvg(){
+  const f=S.scenes.nails.fills, nf=i=>fillFor(f[i],22)||NAIL_BARE;
+  const fingers=[[212,140],[278,100],[344,125],[410,185]];
+  let s=`<rect width="600" height="600" fill="#FFF1E6"/>
+  <g transform="rotate(-38 200 450)"><rect x="168" y="300" width="64" height="175" rx="32" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <rect x="180" y="314" width="40" height="52" rx="18" fill="${nf(0)}" stroke="${INK}" stroke-width="4"/></g>`;
+  fingers.forEach(([x,t],i)=>{ s+=`<rect x="${x}" y="${t}" width="58" height="${380-t}" rx="29" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+    <rect x="${x+9}" y="${t+12}" width="40" height="54" rx="18" fill="${nf(i+1)}" stroke="${INK}" stroke-width="4"/>`; });
+  s+=`<rect x="235" y="460" width="200" height="150" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <rect x="192" y="290" width="286" height="245" rx="85" fill="${SKIN}" stroke="${INK}" stroke-width="6"/>
+  <rect x="241" y="300" width="186" height="20" fill="${SKIN}"/>
+  <rect x="210" y="545" width="250" height="80" rx="22" fill="#FF5FA2" stroke="${INK}" stroke-width="6"/>`;
+  return s;
+}
+function shirtSvg(){
+  const fill = fillFor(S.scenes.shirt.fill,64) || '#FFFFFF';
+  return `<rect width="600" height="600" fill="#FFF1E6"/>
+  <path d="M210,85 L128,118 L36,232 L120,302 L172,252 L172,548 L428,548 L428,252 L480,302 L564,232 L472,118 L390,85 C362,150 238,150 210,85Z"
+    fill="${fill}" stroke="${INK}" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M210,85 C238,150 362,150 390,85" fill="none" stroke="${INK}" stroke-width="14" stroke-linecap="round" opacity=".9"/>`;
+}
+function renderBase(){
+  base.innerHTML = S.mode==='face'?faceSvg():S.mode==='nails'?handSvg():shirtSvg();
+  const hasPhoto = S.mode==='face' && !!photo.getAttribute('src');
+  photo.hidden = !hasPhoto; base.style.display = hasPhoto ? 'none' : '';
+  $('#camBtn').hidden = S.mode!=='face';
+}
+
+// ---------- canvas layer ----------
+function drawStamp(st){
+  const k = 600/1; ctx.save(); ctx.translate(st.x,st.y); ctx.rotate(st.r||0);
+  const col = COLORS[st.c][1];
+  if(st.t==='letter'){
+    ctx.font = `800 ${st.s}px "Baloo 2", system-ui, sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.lineJoin='round';
+    ctx.lineWidth=16; ctx.strokeStyle='#fff'; ctx.strokeText(st.ch,0,st.s*0.06);
+    ctx.lineWidth=8; ctx.strokeStyle=INK; ctx.strokeText(st.ch,0,st.s*0.06);
+    ctx.fillStyle=col; ctx.fillText(st.ch,0,st.s*0.06);
+  } else {
+    ctx.scale(st.s,st.s); const p=new Path2D(PATHS[st.k]); ctx.lineJoin='round';
+    ctx.lineWidth=14/st.s; ctx.strokeStyle='#fff'; ctx.stroke(p);
+    ctx.fillStyle=col; ctx.fill(p);
+    ctx.lineWidth=5/st.s; ctx.strokeStyle=INK; ctx.stroke(p);
+  }
+  ctx.restore();
+}
+function drawStroke(s, from=0){
+  ctx.strokeStyle=COLORS[s.c][1]; ctx.lineWidth=s.w; ctx.lineCap='round'; ctx.lineJoin='round';
+  const p=s.pts; ctx.beginPath();
+  if(p.length===1){ ctx.arc(p[0][0],p[0][1],s.w/2,0,Math.PI*2); ctx.fillStyle=ctx.strokeStyle; ctx.fill(); return; }
+  ctx.moveTo(p[Math.max(0,from-1)][0],p[Math.max(0,from-1)][1]);
+  for(let i=Math.max(1,from);i<p.length;i++) ctx.lineTo(p[i][0],p[i][1]);
+  ctx.stroke();
+}
+function renderCanvas(){
+  const sc=cv.width/600; ctx.setTransform(sc,0,0,sc,0,0); ctx.clearRect(0,0,600,600);
+  const sn=S.scenes[S.mode];
+  (sn.strokes||[]).forEach(s=>drawStroke(s));
+  sn.stamps.forEach(drawStamp);
+}
+
+// ---------- trays ----------
+function renderColors(){
+  $('#colors').innerHTML = COLORS.map(([n,c],i)=>`<button class="sw${i===S.color?' on':''}" data-c="${i}" style="background:${c}" aria-label="${n}"></button>`).join('');
+}
+function renderCtx(){
+  const tool=S.tool[S.mode], c=COLORS[S.color][1], el=$('#ctx');
+  if(tool==='shapes'){
+    el.innerHTML = SHAPES.map(k=>`<button data-shape="${k}" class="${k===S.shape?'on':''}" aria-label="${SHAPE_NAMES[k]}">${shapeSvg(k,c)}</button>`).join('');
+  } else if(tool==='letters'){
+    el.innerHTML = NAME.map((ch,i)=>`<button data-letter="${i}" class="${i===S.letter?'next':i<S.letter?'done':''}" aria-label="${ch}" style="color:${S.color===7?INK:c};-webkit-text-stroke:2px ${INK}">${ch}</button>`).join('');
+  } else if(S.mode==='face'){
+    el.innerHTML = [10,16,26,38,52].map(w=>`<button data-brush="${w}" class="${w===S.brush?'on':''}" aria-label="Brush size ${w}"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="${w/2}" fill="${c}" stroke="${INK}" stroke-width="2.5"/></svg></button>`).join('');
+  } else {
+    el.innerHTML = PATS.map(p=>`<button data-pat="${p}" class="${p===S.pat?'on':''}" aria-label="${PAT_NAMES[p]}"><svg viewBox="0 0 44 44"><rect x="4" y="4" width="36" height="36" rx="10" fill="${fillFor({c:S.color,p},14)}" stroke="${INK}" stroke-width="2.5"/></svg></button>`).join('');
+  }
+}
+function renderTools(){
+  document.querySelectorAll('[data-tool]').forEach(b=>b.classList.toggle('on',b.dataset.tool===S.tool[S.mode]));
+  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===S.mode));
+  $('#paintLbl').textContent = S.mode==='face'?'Paint':S.mode==='nails'?'Polish':'Color';
+}
+function renderAll(){ renderTools(); renderColors(); renderCtx(); renderBase(); renderCanvas(); }
+
+// ---------- sizing ----------
+function fit(){
+  const st=$('#stage'), size=Math.max(120,Math.floor(Math.min(st.clientWidth,st.clientHeight)));
+  scene.style.width=scene.style.height=size+'px';
+  const dpr=Math.min(window.devicePixelRatio||1,2.5); cv.width=cv.height=Math.round((size-8)*dpr);
+  renderCanvas();
+}
+addEventListener('resize',fit);
+
+// ---------- history ----------
+function snap(){ const h=S.hist[S.mode]; h.push(JSON.stringify(S.scenes[S.mode])); if(h.length>60) h.shift(); }
+function undo(){ const h=S.hist[S.mode]; if(!h.length) return; S.scenes[S.mode]=JSON.parse(h.pop()); renderBase(); renderCanvas(); pop(); }
+
+// ---------- celebration ----------
+function confetti(){
+  const box=document.createElement('div'); box.className='confetti';
+  for(let i=0;i<40;i++){ const b=document.createElement('i'); b.style.left=Math.random()*100+'%';
+    b.style.background=COLORS[i%7][1]; b.style.animationDelay=(Math.random()*0.5)+'s';
+    if(i%3===0) b.style.borderRadius='50%'; box.appendChild(b); }
+  document.body.appendChild(box); setTimeout(()=>box.remove(),2400);
+}
+
+// ---------- scene input ----------
+let drawing=null;
+function pt(e){ const r=cv.getBoundingClientRect(); return [(e.clientX-r.left)/r.width*600,(e.clientY-r.top)/r.height*600]; }
+scene.addEventListener('pointerdown',e=>{
+  if(e.target.closest('#camBtn')) return;
+  e.preventDefault(); const [x,y]=pt(e); const tool=S.tool[S.mode], sn=S.scenes[S.mode];
+  if(tool==='paint'){
+    if(S.mode==='face'){
+      snap(); try{scene.setPointerCapture(e.pointerId);}catch(_){}
+      drawing={c:S.color,w:S.brush,pts:[[x,y]]}; sn.strokes.push(drawing); drawStroke(drawing);
+    } else if(S.mode==='nails'){
+      let best=-1,bd=1e9; NAILS.forEach(([nx,ny],i)=>{const d=Math.hypot(nx-x,ny-y); if(d<bd){bd=d;best=i;}});
+      if(bd>170) return;
+      const before=sn.fills.every(Boolean); snap(); sn.fills[best]={c:S.color,p:S.pat}; renderBase(); pop();
+      if(!before && sn.fills.every(Boolean)){ confetti(); say('One, two, three, four, five! Beautiful nails!'); }
+      else say(NUMS[best]+'!');
+    } else {
+      snap(); sn.fill={c:S.color,p:S.pat}; renderBase(); pop();
+      say(COLORS[S.color][0] + (S.pat==='solid'?' shirt!':' '+PAT_NAMES[S.pat].toLowerCase()+'!'));
+    }
+  } else if(tool==='shapes'){
+    snap(); const s=S.mode==='nails'?60:86;
+    sn.stamps.push({t:'shape',k:S.shape,c:S.color,x,y,s,r:(Math.random()-.5)*0.5}); renderCanvas(); pop(); say(SHAPE_NAMES[S.shape]);
+  } else if(tool==='letters'){
+    snap(); const ch=NAME[S.letter];
+    sn.stamps.push({t:'letter',ch,c:S.color,x,y,s:S.mode==='nails'?80:110,r:(Math.random()-.5)*0.3}); renderCanvas(); pop();
+    S.letter++;
+    if(S.letter>=NAME.length){ S.letter=0; confetti(); setTimeout(()=>say('Z, A, H, R, A. Zahra!'),50); }
+    else say(ch);
+    renderCtx();
+  }
+});
+scene.addEventListener('pointermove',e=>{
+  if(!drawing) return; const p=pt(e), last=drawing.pts[drawing.pts.length-1];
+  if(Math.hypot(p[0]-last[0],p[1]-last[1])<2) return;
+  drawing.pts.push(p); const sc=cv.width/600; ctx.setTransform(sc,0,0,sc,0,0); drawStroke(drawing,drawing.pts.length-1);
+});
+const endDraw=()=>{ drawing=null; };
+scene.addEventListener('pointerup',endDraw); scene.addEventListener('pointercancel',endDraw);
+
+// ---------- buttons ----------
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b) return; const d=b.dataset;
+  if(d.mode){ S.mode=d.mode; renderAll(); say(b.textContent.trim()); return; }
+  if(d.tool){ S.tool[S.mode]=d.tool; renderTools(); renderCtx(); pop();
+    say(d.tool==='letters'?'Spell Zahra!':d.tool==='shapes'?'Shapes!':$('#paintLbl').textContent+'!'); return; }
+  if(d.c!==undefined){ S.color=+d.c; renderColors(); renderCtx(); pop(); say(COLORS[S.color][0]); return; }
+  if(d.shape){ S.shape=d.shape; renderCtx(); pop(); say(SHAPE_NAMES[d.shape]); return; }
+  if(d.pat){ S.pat=d.pat; renderCtx(); pop(); say(PAT_NAMES[d.pat]); return; }
+  if(d.brush){ S.brush=+d.brush; renderCtx(); pop(); return; }
+  if(d.letter!==undefined){ S.letter=+d.letter; renderCtx(); pop(); say(NAME[S.letter]); return; }
+});
+$('#undoBtn').addEventListener('click',undo);
+let armT=null;
+$('#clearBtn').addEventListener('click',()=>{
+  const b=$('#clearBtn');
+  if(!b.classList.contains('armed')){ b.classList.add('armed'); $('#clearLbl').textContent='Sure?'; clearTimeout(armT);
+    armT=setTimeout(()=>{b.classList.remove('armed'); $('#clearLbl').textContent='Clear';},2500); return; }
+  clearTimeout(armT); b.classList.remove('armed'); $('#clearLbl').textContent='Clear';
+  snap(); const m=S.mode;
+  S.scenes[m] = m==='face'?{strokes:[],stamps:[]}:m==='nails'?{fills:[null,null,null,null,null],stamps:[]}:{fill:null,stamps:[]};
+  renderBase(); renderCanvas(); pop();
+});
+$('#soundBtn').addEventListener('click',()=>{ S.sound=!S.sound; try{speechSynthesis.cancel();}catch(_){} renderSound(); });
+$('#camBtn').addEventListener('click',()=>$('#camIn').click());
+$('#camIn').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0]; if(!f) return;
+  const old=photo.getAttribute('src'); if(old) URL.revokeObjectURL(old);
+  photo.src=URL.createObjectURL(f); renderBase(); say('There you are!'); e.target.value='';
+});
+
+// ---------- go ----------
+renderSound(); renderAll();
+requestAnimationFrame(fit);
+(document.fonts&&document.fonts.load('800 100px "Baloo 2"')||Promise.resolve()).then(()=>renderCanvas()).catch(()=>{});
+})();
+</script>
+
+</body>
+</html>
