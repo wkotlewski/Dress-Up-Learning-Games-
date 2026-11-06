@@ -44,9 +44,17 @@ When she taps **Nails**, the game asks if she wants to go to the nail salon. The
 - **Please and thank you:** at the salon, Nina offers each step and Zahra answers **"Yes, please!"** or **"No, thank you."** She finishes each step with **"Thank you, Nina!"** and Nina says "You're welcome!"
 - **Clean-up time:** after she plays somewhere, leaving brings up the toys on the floor. She taps each one to put it away in the toy box, counting as she goes, "so we don't lose them."
 
+### Your voice
+
+In the grown-up settings, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. Record as many or as few as you like.
+
+Whenever the game says a word or phrase you recorded, it plays your voice, even in the middle of a sentence. "Which one is pink?" plays your "Which one is" and your "Pink." The built-in voice fills in everything else. Recordings stay in that browser on that device, so record on the iPad she plays on.
+
+**Voice type** lets you choose any English voice the device has, set the pitch lower, middle or higher and the speed slow, normal or quick, and tap **Hear it** to try it.
+
 ### For grown-ups
 
-The gear button turns questions off, some or lots, turns clean-up time on or off, turns the voice on or off, and starts over. Her outfit is saved in the browser between visits. Answering out loud needs a browser that supports speech recognition, like Chrome, or Safari on iPhone and iPad. It asks for the microphone the first time.
+The gear button turns questions off, some or lots, turns clean-up time on or off, turns talking on or off, records your voice, changes the voice type, and starts over. Her outfit is saved in the browser between visits. Answering out loud needs a browser that supports speech recognition, like Chrome, or Safari on iPhone and iPad. It asks for the microphone the first time.
 
 ### Run it
 

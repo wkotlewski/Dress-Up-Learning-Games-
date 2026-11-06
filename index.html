@@ -124,6 +124,21 @@ button[disabled]{opacity:.4}
 .lbl{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
 #resetBtn.armed{background:var(--pop);color:#fff}
 
+.vcard{max-width:560px}
+.vgroup{display:flex;flex-direction:column;gap:6px}
+.vgroup h3{margin:6px 0 0;font-size:17px}
+.vrow{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:2px dashed #F0DCD0}
+.vrow .lab{flex:1;min-width:0;font-family:system-ui,sans-serif;font-size:15px;line-height:1.3}
+.vrow .lab b{font-family:var(--display)}
+.vrow button{flex:0 0 44px;height:44px;border-radius:50%;box-shadow:0 3px 0 var(--ink)}
+.vrow button svg{width:22px;height:22px}
+.vrow .rec{background:#EE3B45;color:#fff}
+.vrow .rec.live{animation:pulse .8s ease-in-out infinite;background:var(--go)}
+.vrow .done{background:var(--pick)}
+.vprog{font-weight:800;font-size:15px}
+.card select{font-family:var(--display);font-size:16px;font-weight:600;height:48px;border:3px solid var(--ink);border-radius:14px;background:#fff;color:var(--ink);padding:0 10px;width:100%}
+.wide2{height:52px;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;width:100%}
+.wide2 svg{width:24px;height:24px;margin:0}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:40}
 .confetti i{position:absolute;top:-30px;width:16px;height:16px;border-radius:4px;animation:fall 1.6s ease-in forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
@@ -181,10 +196,32 @@ button[disabled]{opacity:.4}
     <div class="seg" id="segQuiz"><button data-q="off">Off</button><button data-q="some">Some</button><button data-q="lots">Lots</button></div>
     <div class="lbl">Clean-up time</div>
     <div class="seg" id="segClean"><button data-c="1">On</button><button data-c="0">Off</button></div>
-    <div class="lbl">Voice</div>
+    <div class="lbl">Talking</div>
     <div class="seg" id="segVoice"><button data-v="1">On</button><button data-v="0">Off</button></div>
+    <div class="lbl">Your voice</div>
+    <p>Record yourself saying her name, colors, numbers, letters and "please" and "thank you". The game says those words in your voice and uses the voice below for everything else.</p>
+    <button class="wide2" id="recOpen"><svg viewBox="0 0 40 40"><rect x="14" y="5" width="12" height="20" rx="6" fill="currentColor"/><path d="M9,19 Q9,31 20,31 Q31,31 31,19 M20,31 V37" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><span id="recOpenLbl">Record my voice</span></button>
+    <div class="seg" id="segMine"><button data-m="1">Use my recordings</button><button data-m="0">Don't</button></div>
+    <div class="lbl">Voice type</div>
+    <select id="voiceSel" aria-label="Voice type"></select>
+    <div class="lbl">Pitch</div>
+    <div class="seg" id="segPitch"><button data-p="0.8">Lower</button><button data-p="1.05">Middle</button><button data-p="1.3">Higher</button></div>
+    <div class="lbl">Speed</div>
+    <div class="seg" id="segRate"><button data-r="0.7">Slow</button><button data-r="0.85">Normal</button><button data-r="1">Quick</button></div>
+    <button class="wide2" id="voiceTest"><svg viewBox="0 0 40 40"><path d="M8,16 H14 L22,9 V31 L14,24 H8Z" fill="currentColor"/><path d="M27,14 Q31,20 27,26 M31,10 Q38,20 31,30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>Hear it</button>
     <p id="micNote"></p>
     <div class="seg"><button id="resetBtn">Start over</button><button id="closeSheet">Done</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="vsheet" hidden>
+  <div class="card vcard" role="dialog" aria-labelledby="vsheetH">
+    <h2 id="vsheetH">Record my voice</h2>
+    <p>Tap the red button, say the words the way you'd say them to her, then tap it again. Each recording stops by itself after 6 seconds. Record as many or as few as you like. The recordings stay in this browser on this device.</p>
+    <p id="vNote"></p>
+    <div class="vprog" id="vProg"></div>
+    <div id="vList" style="display:flex;flex-direction:column;gap:10px"></div>
+    <button class="wide2" id="vDone">Done</button>
   </div>
 </div>
 
@@ -708,13 +745,13 @@ const fresh=()=>({
   outfit:{top:{id:'tee',c:CI('Pink'),p:'hearts'},bottom:{id:'skirt',c:CI('Purple'),p:'plain'},shoes:{id:'sneaker',c:CI('White'),p:'plain'},hairAcc:{id:'bow',c:CI('Yellow'),p:'plain'}},
   makeup:{lips:null,cheeks:null,eyes:null},faceStamps:[],handStamps:[],nails:Array(10).fill(null)
 });
-const S=Object.assign(fresh(),{color:CI('Pink'),pat:'plain',nailShape:'long',stamp:'heart',quiz:'some',sound:true,cleanup:true,
+const S=Object.assign(fresh(),{color:CI('Pink'),pat:'plain',nailShape:'long',stamp:'heart',quiz:'some',sound:true,cleanup:true,myVoice:true,voiceName:'',pitch:1.05,rate:.85,
   play:null,played:false,salon:{done:{},bub:[],msg:'',dry:null,greeted:false,pops:0,lotion:0},clean:null});
 const KEY='zahra-dressup-v3';
 const persist=()=>({look:S.look,bg:S.bg,place:S.place,outfit:S.outfit,makeup:S.makeup,faceStamps:S.faceStamps,handStamps:S.handStamps,nails:S.nails});
-function save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign(persist(),{quiz:S.quiz,sound:S.sound,cleanup:S.cleanup})));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign(persist(),{quiz:S.quiz,sound:S.sound,cleanup:S.cleanup,myVoice:S.myVoice,voiceName:S.voiceName,pitch:S.pitch,rate:S.rate})));}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&typeof d==='object'){
-  ['look','bg','place','outfit','makeup','faceStamps','handStamps','nails','quiz','sound','cleanup'].forEach(k=>{if(d[k]!==undefined)S[k]=d[k];});
+  ['look','bg','place','outfit','makeup','faceStamps','handStamps','nails','quiz','sound','cleanup','myVoice','voiceName','pitch','rate'].forEach(k=>{if(d[k]!==undefined)S[k]=d[k];});
   if(!Array.isArray(S.nails)||S.nails.length!==10)S.nails=Array(10).fill(null);
   if(!SCENES[S.bg])S.bg='room';if(S.place&&!PLACES[S.place])S.place=null;if(!HAIRMETA[S.look.hair])S.look.hair='curly';}}catch(e){}}
 const hist=[];
@@ -723,14 +760,31 @@ function undo(){if(!hist.length)return;Object.assign(S,JSON.parse(hist.pop()));s
 
 // ---------- sound ----------
 let ac=null,voice=null;
-function pickVoice(){try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/^en[-_]US/i.test(v.lang)&&/Samantha|Female|Google US English|Aria|Jenny|Zira/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||null;}catch(e){}}
-try{speechSynthesis.onvoiceschanged=pickVoice;pickVoice();}catch(e){}
+function enVoices(){try{return speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));}catch(e){return [];}}
+function pickVoice(){const vs=enVoices();voice=(S.voiceName&&vs.find(v=>v.name===S.voiceName))||vs.find(v=>/^en[-_]US/i.test(v.lang)&&/Samantha|Female|Google US English|Aria|Jenny|Zira/i.test(v.name))||vs[0]||null;}
+try{speechSynthesis.onvoiceschanged=()=>{pickVoice();if(!$('#sheet').hidden)renderSheet();};}catch(e){}
 function tone(f0,f1x,dur,vol=.16,type='sine'){if(!S.sound)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
   const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f0,ac.currentTime);o.frequency.exponentialRampToValueAtTime(f1x,ac.currentTime+dur*.7);
   g.gain.setValueAtTime(vol,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+dur);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+dur+.01);}catch(e){}}
 const pop=hi=>{const f=hi?760:520+Math.random()*300;tone(f,f*2.2,.16);};
 const splashSnd=()=>tone(900,180,.3,.12,'triangle');
-function say(t){if(!S.sound||!t)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.rate=.85;u.pitch=1.2;if(voice)u.voice=voice;speechSynthesis.speak(u);}catch(e){}}
+// Speech: recorded clips from a grown-up are used for any words they recorded; the built-in voice fills the gaps.
+const CLIPS=new Map();let sayToken=0,curAudio=null;
+const norm=t=>String(t).toLowerCase().replace(/[\u2019]/g,"'").replace(/[^a-z0-9' ]+/g,' ').replace(/\s+/g,' ').trim();
+function stopSpeech(){sayToken++;try{speechSynthesis.cancel();}catch(e){}if(curAudio){try{curAudio.pause();}catch(e){}curAudio=null;}}
+function planSpeech(text){
+  if(!S.myVoice||!CLIPS.size)return [{text}];
+  const w=norm(text).split(' ').filter(Boolean),out=[];let pend=[],hit=false,i=0;
+  while(i<w.length){let f=null;for(let j=Math.min(w.length,i+14);j>i;j--){const k=w.slice(i,j).join(' ');if(CLIPS.has(k)){f=[k,j];break;}}
+    if(f){if(pend.length){out.push({text:pend.join(' ')});pend=[];}out.push({clip:CLIPS.get(f[0])});hit=true;i=f[1];}else{pend.push(w[i]);i++;}}
+  if(pend.length)out.push({text:pend.join(' ')});
+  return hit?out:[{text}];
+}
+function ttsSeg(text,my){return new Promise(res=>{let done=false;const fin=()=>{if(!done){done=true;res();}};
+  if(my!==sayToken)return fin();
+  try{const u=new SpeechSynthesisUtterance(text);u.rate=S.rate||.85;u.pitch=S.pitch||1.05;if(voice)u.voice=voice;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);setTimeout(fin,600+text.length*95/(S.rate||.85));}catch(e){fin();}});}
+function clipSeg(url,my){return new Promise(res=>{if(my!==sayToken)return res();try{const a=new Audio(url);curAudio=a;let done=false;const fin=()=>{if(!done){done=true;res();}};a.onended=fin;a.onerror=fin;a.play().catch(fin);setTimeout(fin,7000);}catch(e){res();}});}
+async function say(t){if(!S.sound||!t)return;stopSpeech();const my=sayToken;for(const seg of planSpeech(t)){if(my!==sayToken)return;if(seg.clip)await clipSeg(seg.clip,my);else await ttsSeg(seg.text,my);}}
 function confetti(){const b=document.createElement('div');b.className='confetti';
   for(let i=0;i<44;i++){const c=document.createElement('i');c.style.left=Math.random()*100+'%';c.style.background=COLORS[i%7][1];c.style.animationDelay=Math.random()*.5+'s';if(i%3===0)c.style.borderRadius='50%';b.appendChild(c);}
   document.body.appendChild(b);setTimeout(()=>b.remove(),2400);}
@@ -945,7 +999,7 @@ function playTap(x,y,fromButton){
     case 'kick':if(BALL&&BALL.state==='rest'){Object.assign(BALL,{state:'fly',t0:t,fx:BALL.x,fy:BALL.y,tx:90+Math.random()*120,ty:300+Math.random()*30});tone(200,90,.2,.2,'triangle');}break;
     case 'cheer':ANIM={k:'hop',t0:t,dur:500};confetti();say(pick(['Go Zahra go!','Yay team!','Hooray!']));break;
     case 'read':P.page=(P.page+1)%PAGES.length;renderAll();readPage();break;
-    case 'sleep':if(fromButton){P.dark=!P.dark;say(P.dark?'Lights off. Good night, Zahra!':'Lights on!');renderStage();}else{say('Shh! She is sleeping.');spawnUp('zzz',100,370,1,{speed:26,life:2.4});}break;
+    case 'sleep':if(fromButton){P.dark=!P.dark;say(P.dark?'Lights off. Good night, Zahra! I love you.':'Lights on!');renderStage();}else{say('Shh! She is sleeping.');spawnUp('zzz',100,370,1,{speed:26,life:2.4});}break;
     case 'swim':spawnSplash(fromButton?150+(Math.random()-.5)*100:x,fromButton?330:y,14);splashSnd();say(pick(['Splash!','Splish splash!','Whee!']));break;
     case 'castle':
       if(fromButton){P.pieces=0;say("Let's build a new one!");renderStage();break;}
@@ -1149,7 +1203,7 @@ $('#qHear').addEventListener('click',()=>Q&&say(Q.spoken));
 function stopRec(){try{rec&&rec.abort();}catch(e){}rec=null;$('#qMic').classList.remove('listening');}
 $('#qMic').addEventListener('click',()=>{
   if(!Q||!SR)return;if(rec){stopRec();return;}
-  try{speechSynthesis.cancel();}catch(e){}
+  stopSpeech();
   try{rec=new SR();}catch(e){micOK=false;$('#qMic').hidden=true;return;}
   rec.lang='en-US';rec.interimResults=false;rec.maxAlternatives=5;rec.continuous=false;
   $('#qMic').classList.add('listening');$('#qMicLbl').textContent='Listening…';
@@ -1182,10 +1236,13 @@ function wear(it){
     S.outfit[it.slot]=o;
     if(it.covers)delete S.outfit.bottom;
     if(it.slot==='bottom'&&S.outfit.top&&BY[S.outfit.top.id]&&BY[S.outfit.top.id].covers)delete S.outfit.top;
+    if(it.slot==='hairAcc'&&S.outfit.hat){delete S.outfit.hat;swapNote='Hat off, so we can see it!';}
+    if(it.slot==='hat'&&S.outfit.hairAcc){delete S.outfit.hairAcc;swapNote='Hair bow off, so the hat fits!';}
     NAV.push({v:'color',slot:it.slot});
   });
-  if(!quizOpen)setTimeout(()=>say('Pick a color!'),900);
+  if(!quizOpen)setTimeout(()=>{say((swapNote?swapNote+' ':'')+'Pick a color!');swapNote='';},900);
 }
+let swapNote='';
 function recolor(){
   const l=lvl(),sl=l.slot;if(!sl||!S.outfit[sl])return renderPanel();
   const id=S.outfit[sl].id;
@@ -1302,6 +1359,13 @@ function renderSheet(){
   document.querySelectorAll('#segQuiz button').forEach(b=>b.classList.toggle('on',b.dataset.q===S.quiz));
   document.querySelectorAll('#segVoice button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='1')===S.sound));
   document.querySelectorAll('#segClean button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===S.cleanup));
+  document.querySelectorAll('#segMine button').forEach(b=>b.classList.toggle('on',(b.dataset.m==='1')===S.myVoice));
+  document.querySelectorAll('#segPitch button').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.p-S.pitch)<.01));
+  document.querySelectorAll('#segRate button').forEach(b=>b.classList.toggle('on',Math.abs(+b.dataset.r-S.rate)<.01));
+  const vs=enVoices(),sel=$('#voiceSel');
+  sel.innerHTML=vs.length?vs.map(v=>`<option value="${v.name.replace(/"/g,'&quot;')}"${voice&&v.name===voice.name?' selected':''}>${v.name.replace(/</g,'&lt;')} (${v.lang})</option>`).join(''):'<option>Default voice</option>';
+  sel.disabled=!vs.length;
+  $('#recOpenLbl').textContent=CLIPS.size?`Record my voice (${CLIPS.size} saved)`:'Record my voice';
   $('#micNote').textContent=micOK?'Talking answers: the first time she presses the microphone, the browser asks to use it.':'Talking answers are not available in this browser, so she answers by tapping. Chrome or Safari on a phone or tablet supports them.';
 }
 $('#gearBtn').addEventListener('click',()=>{renderSheet();$('#sheet').hidden=false;});
@@ -1309,7 +1373,64 @@ $('#closeSheet').addEventListener('click',()=>{$('#sheet').hidden=true;});
 $('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')$('#sheet').hidden=true;});
 $('#segQuiz').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.quiz=b.dataset.q;save();renderSheet();});
 $('#segClean').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cleanup=b.dataset.c==='1';save();renderSheet();});
-$('#segVoice').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.sound=b.dataset.v==='1';try{speechSynthesis.cancel();}catch(_){}save();renderSheet();});
+$('#segVoice').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.sound=b.dataset.v==='1';stopSpeech();save();renderSheet();});
+$('#segMine').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.myVoice=b.dataset.m==='1';save();renderSheet();});
+$('#segPitch').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.pitch=+b.dataset.p;save();renderSheet();say('Hi Zahra! Which one is pink?');});
+$('#segRate').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.rate=+b.dataset.r;save();renderSheet();say('Hi Zahra! Which one is pink?');});
+$('#voiceSel').addEventListener('change',e=>{S.voiceName=e.target.value;pickVoice();save();say('Hi Zahra! Which one is pink?');});
+$('#voiceTest').addEventListener('click',()=>say('Hi Zahra! Which one is pink? Yes! Good job! Thank you!'));
+
+// ---------- recording a grown-up's voice ----------
+const VOICE_GROUPS=[
+  ['Her name and cheers',['Zahra','Hi Zahra!','Yes!','Good job!','Great choice!','You did it!','Hooray!','Try again!',"That's",'Bravo!','Splash!','Pop!','Goal!']],
+  ['Colors',COLORS.map(c=>c[0])],
+  ['Numbers',NUMW.slice(1).map(cap)],
+  ['Letters in ZAHRA',['Z','A','H','R']],
+  ['Shapes',['Circle','Square','Triangle','Star','Heart']],
+  ['Questions',['Which one is','Which one is the','How many','What color is this?','What letter comes next?','Count them!','Pick a color!','Where are we going today?','What should we do next?']],
+  ['Please and thank you',['Please','Thank you','Yes, please!',"You're welcome",'You said please!',"Clean-up time! Tap the toys to put them away, so we don't lose them.",'All clean! Thank you for helping!']],
+  ['Bedtime',['Good night, Zahra!','Time for bed. Good night!','I love you']]
+];
+let vdb=null,mstream=null,mrec=null,recKey=null,recTimer=null;
+function openDB(){return new Promise((res,rej)=>{try{const r=indexedDB.open('zahra-voice',1);r.onupgradeneeded=()=>r.result.createObjectStore('clips');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);}catch(e){rej(e);}});}
+async function loadClips(){try{vdb=await openDB();await new Promise(res=>{const req=vdb.transaction('clips','readonly').objectStore('clips').openCursor();req.onsuccess=()=>{const c=req.result;if(c){CLIPS.set(c.key,URL.createObjectURL(c.value));c.continue();}else res();};req.onerror=()=>res();});}catch(e){vdb=null;}}
+function dbDo(fn){return new Promise(res=>{if(!vdb)return res(false);try{const tx=vdb.transaction('clips','readwrite');fn(tx.objectStore('clips'));tx.oncomplete=()=>res(true);tx.onerror=()=>res(false);}catch(e){res(false);}});}
+const vNote=t=>{$('#vNote').textContent=t||'';};
+function renderVList(){
+  const all=VOICE_GROUPS.flatMap(g=>g[1]);const n=all.filter(t=>CLIPS.has(norm(t))).length;
+  $('#vProg').textContent=`${n} of ${all.length} recorded`;
+  const micIc='<svg viewBox="0 0 40 40"><rect x="14" y="5" width="12" height="20" rx="6" fill="currentColor"/><path d="M9,19 Q9,31 20,31 Q31,31 31,19 M20,31 V37" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
+  const stopIc='<svg viewBox="0 0 40 40"><rect x="10" y="10" width="20" height="20" rx="4" fill="currentColor"/></svg>';
+  const playIc='<svg viewBox="0 0 40 40"><path d="M13,8 L32,20 L13,32Z" fill="currentColor"/></svg>';
+  $('#vList').innerHTML=VOICE_GROUPS.map(([g,list])=>`<div class="vgroup"><h3>${g}</h3>`+list.map(t=>{const k=norm(t),has=CLIPS.has(k),live=recKey===k;
+    return `<div class="vrow"><button class="rec${live?' live':''}" data-rk="${k}" aria-label="${live?'Stop recording':'Record'} ${t.replace(/"/g,'&quot;')}">${live?stopIc:micIc}</button><span class="lab"><b>${t.replace(/</g,'&lt;')}</b></span>`
+      +`<button class="${has?'done':''}" data-pk="${k}" ${has?'':'disabled'} aria-label="Play">${playIc}</button><button data-dk="${k}" ${has?'':'disabled'} aria-label="Delete">${XSVG}</button></div>`;}).join('')+'</div>').join('');
+}
+async function startRecording(k){
+  if(mrec){stopRecording();return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){vNote("This browser can't record here. Open the game from its own link (for example on GitHub Pages) in Chrome or Safari to record.");return;}
+  try{if(!mstream)mstream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});}
+  catch(e){vNote("The microphone isn't available here. Open the game from its own link (for example on GitHub Pages), and allow the microphone when the browser asks.");return;}
+  stopSpeech();
+  const chunks=[];let r;try{r=new MediaRecorder(mstream);}catch(e){vNote("This browser can't record audio.");return;}
+  mrec=r;recKey=k;vNote('Recording… tap the green button when you finish.');
+  r.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+  r.onstop=async()=>{clearTimeout(recTimer);const blob=new Blob(chunks,{type:r.mimeType||'audio/webm'});mrec=null;recKey=null;
+    if(blob.size<800){vNote("That one didn't record. Try again a little closer to the microphone.");renderVList();return;}
+    if(CLIPS.has(k))URL.revokeObjectURL(CLIPS.get(k));const url=URL.createObjectURL(blob);CLIPS.set(k,url);
+    const ok=await dbDo(st=>st.put(blob,k));vNote(ok?'Saved. Here it is:':"Saved for now. This browser won't keep it after you close the game.");
+    renderVList();try{const a=new Audio(url);a.play().catch(()=>{});}catch(e){}};
+  r.start();recTimer=setTimeout(stopRecording,6000);renderVList();
+}
+function stopRecording(){clearTimeout(recTimer);try{if(mrec&&mrec.state!=='inactive')mrec.stop();}catch(e){mrec=null;recKey=null;}}
+$('#vList').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset;
+  if(d.rk){startRecording(d.rk);return;}
+  if(d.pk&&CLIPS.has(d.pk)){stopSpeech();try{const a=new Audio(CLIPS.get(d.pk));curAudio=a;a.play().catch(()=>{});}catch(_){}return;}
+  if(d.dk&&CLIPS.has(d.dk)){URL.revokeObjectURL(CLIPS.get(d.dk));CLIPS.delete(d.dk);await dbDo(st=>st.delete(d.dk));vNote('Deleted.');renderVList();}
+});
+$('#recOpen').addEventListener('click',()=>{vNote('');renderVList();$('#vsheet').hidden=false;});
+$('#vDone').addEventListener('click',()=>{stopRecording();if(mstream){mstream.getTracks().forEach(t=>t.stop());mstream=null;}$('#vsheet').hidden=true;renderSheet();});
+
 let armT=null;
 $('#resetBtn').addEventListener('click',()=>{const b=$('#resetBtn');
   if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('armed');b.textContent='Start over';},2500);return;}
@@ -1317,7 +1438,7 @@ $('#resetBtn').addEventListener('click',()=>{const b=$('#resetBtn');
   NAV=[{v:'home'}];commit(()=>{const f=fresh();f.look=S.look;Object.assign(S,f);S.salon={done:{},bub:[],msg:'',dry:null,greeted:false,pops:0,lotion:0};});$('#sheet').hidden=true;});
 
 // ---------- go ----------
-load();renderAll();
+load();pickVoice();renderAll();loadClips();
 (document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>renderStage()).catch(()=>{});
 })();
 </script>
