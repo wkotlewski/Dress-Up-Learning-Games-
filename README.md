@@ -2,6 +2,8 @@
 
 Tap-to-play learning games for preschoolers. The buttons are big and chunky, and the game says every color, shape, number and letter out loud.
 
+**▶ Play Zahra's Dress-Up: https://wkotlewski.github.io/Dress-Up-Learning-Games-/**
+
 ## Zahra's Dress-Up (`index.html`)
 
 A dress-up game for a girl turning 4 who is learning colors, shapes, numbers and how to spell her name.
@@ -31,4 +33,6 @@ The gear button sets how often questions appear (off, some, lots), turns the voi
 
 ### Run it
 
-It's a single HTML file with no build step. Open `index.html` in a browser, or turn on GitHub Pages (Settings → Pages → deploy from `main`, root) to play on a phone or tablet.
+Play it at **https://wkotlewski.github.io/Dress-Up-Learning-Games-/** on any phone, tablet or computer. On an iPad or iPhone, tap Share → Add to Home Screen to give it its own icon.
+
+The link works once GitHub Pages is on for this repo (Settings → Pages → deploy from `main`, root folder). The game is a single HTML file with no build step, so you can also open `index.html` straight in a browser.
