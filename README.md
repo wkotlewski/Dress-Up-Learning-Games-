@@ -21,12 +21,15 @@ She can also tap the girl herself: her head for hats, her chest for tops, her le
 
 ### Places and adventures
 
-Each place has an adventure: a few scenes in a row where she makes the girl do things. Dots at the top show how far along she is, the big button always says what to do next, and tapping the picture works too.
+Each place has an adventure: a few scenes in a row where she makes the girl do things. Dots show how far along she is. She plays it like a game, in two ways:
+
+- **Touch things in the picture:** the boots to put them on, a puddle to jump in, the bus to get on, a candle to blow out, the ball to bounce it. A glowing ring shows what to tap next.
+- **Game buttons on the picture**, named for that scene: **Walk** and **Jump** on the rainy sidewalk, **Pedal** and **Ring bell** on the bike, **Drive** and **Honk** on the bus, **Get on the bus**, **Go in school**, **Raise hand**, **Pick up** for shells, **Kick**, **Plié**, **Blow** and so on. Hold **Walk** (or Pedal or Drive) to keep moving, and **Back** to go back. At the stop sign the arrow buttons become **Look left** and **Look right**. On a computer, the arrow keys and the space bar work too.
 
 | Place | Clothes | Adventure |
 |---|---|---|
 | Rainy day | raincoat, rain boots, rain hat, umbrella | **Puddle walk:** put on rain boots → walk down the sidewalk and jump in each muddy puddle → home, take off the muddy boots and put them on the mat |
-| School day | name shirt, skirt, sneakers, backpack | **School day:** put on the backpack → the bus pulls up, tap to get on → say "Good morning!" to the driver → ride to school → sit at a desk and raise your hand to answer three questions → ride home → say "Thank you!" to the driver → hang up the backpack |
+| School day | name shirt, skirt, sneakers, backpack | **School day:** put on the backpack → the bus pulls up, tap to get on → say "Good morning!" to the driver → ride to school → go in school → sit at a desk and raise your hand to answer three questions → ride home → say "Thank you!" to the driver → hang up the backpack |
 | Sunny park | T-shirt, shorts, cap, sunglasses, bubble wand | **Bike to the park:** put on a helmet → ride the bike, stop at the stop sign and look left and right → helmets off on the playground → go down the slide three times → helmet back on → ride home safely |
 | Fancy party | party dress, ball gown, tiara, pearls, purse | **The party:** walk in and catch a balloon → dance → blow out four candles on the cake → say "Thank you for the party!" |
 | Ballet show | leotard, tutu, tights, ballet slippers | **Ballet class:** put on slippers → hold the barre and plié four times → twirl in the middle → take a bow while flowers fly → take off the slippers and put them in the bag |

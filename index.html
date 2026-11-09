@@ -164,6 +164,16 @@ button[disabled]{opacity:.4}
 .startoast{position:fixed;top:72px;left:24px;z-index:45;display:flex;align-items:center;gap:4px;font:800 30px var(--display);color:var(--ink);background:#FFF3B0;border:3px solid var(--ink);border-radius:999px;padding:4px 14px 4px 6px;animation:rise 1.6s ease-out forwards;pointer-events:none}
 .startoast svg{width:34px;height:34px}
 @keyframes rise{0%{transform:translateY(30px) scale(.6);opacity:0}20%{transform:none;opacity:1}80%{opacity:1}100%{transform:translateY(-30px);opacity:0}}
+.pad{position:absolute;left:0;right:0;bottom:10px;display:flex;justify-content:space-between;align-items:flex-end;padding:0 10px;pointer-events:none;z-index:3}
+.pad .arrows{display:flex;gap:10px}
+.pad button{pointer-events:auto;border-radius:22px;min-width:76px;height:84px;padding:4px 8px;touch-action:none;-webkit-user-select:none;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:14px;font-weight:800;line-height:1}
+.pad button svg{width:40px;height:40px;margin:0}
+.pad .actb{background:var(--pop);color:#fff;min-width:92px}
+.pad .back{min-width:60px;height:64px;font-size:12px}.pad .back svg{width:28px;height:28px}
+.pad button[aria-disabled="true"]{opacity:.45}
+.pad button.held{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);background:var(--pick)}
+.pad .glow{animation:pulse 1s ease-in-out infinite;background:var(--pick)}
+@media (min-aspect-ratio:5/4) and (min-width:640px){.pad button{min-width:96px;height:100px;font-size:16px}.pad button svg{width:50px;height:50px}}
 .dots{display:flex;gap:8px;justify-content:center}
 .dots i{width:16px;height:16px;border-radius:50%;border:3px solid var(--ink);background:#fff;box-sizing:border-box}
 .dots i.d{background:var(--go)}
@@ -220,7 +230,8 @@ button[disabled]{opacity:.4}
   </div>
 
   <div class="main">
-    <div class="stagebox"><button class="starchip" id="starChip" aria-label="My stars: open the prizes"><svg viewBox="-0.6 -0.6 1.2 1.2" aria-hidden="true"><path d="M0,-0.46 L0.12,-0.13 L0.48,-0.12 L0.2,0.1 L0.3,0.45 L0,0.24 L-0.3,0.45 L-0.2,0.1 L-0.48,-0.12 L-0.12,-0.13Z" fill="#FFC93C" stroke="#3B1F4A" stroke-width="0.07" stroke-linejoin="round"/></svg><span id="starVal">0</span></button><svg id="stage" viewBox="0 0 300 560" preserveAspectRatio="xMidYMid meet" aria-label="Zahra's girl"></svg></div>
+    <div class="stagebox"><button class="starchip" id="starChip" aria-label="My stars: open the prizes"><svg viewBox="-0.6 -0.6 1.2 1.2" aria-hidden="true"><path d="M0,-0.46 L0.12,-0.13 L0.48,-0.12 L0.2,0.1 L0.3,0.45 L0,0.24 L-0.3,0.45 L-0.2,0.1 L-0.48,-0.12 L-0.12,-0.13Z" fill="#FFC93C" stroke="#3B1F4A" stroke-width="0.07" stroke-linejoin="round"/></svg><span id="starVal">0</span></button>
+      <div class="pad" id="pad" hidden><div class="arrows" id="padArrows"></div><div class="arrows" id="padActs"></div></div><svg id="stage" viewBox="0 0 300 560" preserveAspectRatio="xMidYMid meet" aria-label="Zahra's girl"></svg></div>
     <div class="panel" id="panel">
       <div class="rows" id="rows"></div>
       <div class="quiz" id="quiz" hidden>
@@ -1034,9 +1045,10 @@ function charTransform(t){
     if(!RM){if(k==='swim')an=`translate(0 ${f1(6*Math.sin(t/450))})`;if(k==='dance')an=`rotate(${f1(6*Math.sin(t/260))} 150 500)`;}
   } else if(l.v==='adv'){
     const st=advStep(l);if(!st)return '';
-    if((st.k==='walk'||st.k==='ride')&&S.walk&&S.walk.target-S.walk.off>1&&!RM)an=`translate(0 ${f1(-Math.abs(Math.sin(t/110))*(st.vehicle?3:8))})`;
+    if((st.k==='walk'||st.k==='ride')&&S.walk&&Math.abs(S.walk.target-S.walk.off)>1&&!RM)an=`translate(0 ${f1(-Math.abs(Math.sin(t/110))*(st.vehicle?3:8))})`;
     if(st.k==='bus'){base='translate(-80 0)';if(BUS&&BUS.boarding){const p=Math.min(1,(t-BUS.boarding)/800);an=`translate(${f1(150*p)} ${f1(-30*p)}) scale(${f1(1-.5*p)})`;}}
     if(st.k==='class')base='translate(30 60)';
+    if(st.k==='go'){base='translate(-70 40) scale(.85)';if(l.going){const p=Math.min(1,(t-l.going)/900);an=`translate(${f1(120*p)} ${f1(-60*p)}) scale(${f1(1-.5*p)})`;}}
   } else if(l.v!=='play')return '';
   if(ANIM){const p=Math.min(1,(t-ANIM.t0)/ANIM.dur);
     if(ANIM.k==='hop')an+=` translate(0 ${f1(-60*Math.sin(Math.PI*p))})`;
@@ -1071,10 +1083,11 @@ function loop(t){
   let s=FX.map(fxSvg).join('');
   if(l.v==='adv'){const st=advStep(l);
     if(st&&S.walk&&(st.k==='walk'||st.k==='ride')){const W=S.walk;
-      if(W.off<W.target){W.off=Math.min(W.target,W.off+dt*(st.vehicle==='bus'?320:250));const wg=document.getElementById('world');if(wg)wg.innerHTML=worldSvg(st.world,W,st.end);
+      if(W.hold&&!W.pending&&!W.finished){const nx0=W.ev.find(e=>!e.done),cap0=nx0?nx0.at:W.len;W.target=W.hold>0?Math.min(cap0,W.off+70):Math.max(0,W.off-70);}
+      if(Math.abs(W.target-W.off)>.5){const sp=dt*(st.vehicle==='bus'?320:250);W.off+=Math.sign(W.target-W.off)*Math.min(Math.abs(W.target-W.off),sp);const wg=document.getElementById('world');if(wg)wg.innerHTML=worldSvg(st.world,W,st.end);
         const fr=document.getElementById('front');if(fr){if(st.vehicle==='bike')fr.innerHTML=bikeSvg(W.off*1.6);if(st.vehicle==='bus')fr.setAttribute('transform',`translate(0 ${f1(Math.abs(Math.sin(t/90))*-3)})`);}}
       const nx=W.ev.find(e=>!e.done);
-      if(nx&&!W.pending&&W.off>=nx.at-.5){W.pending=nx;say(EVENTS[nx.e].say);renderPanel();}
+      if(nx&&!W.pending&&W.off>=nx.at-.5){W.pending=nx;W.hold=0;W.target=W.off;document.querySelectorAll('.pad .held').forEach(b=>b.classList.remove('held'));say(EVENTS[nx.e].say);renderPanel();}
       if(!nx&&!W.finished&&W.off>=W.len-.5){W.finished=true;say({home:"We're home!",school:"We're at school!",park:'We made it to the park!',water:'The water!'}[st.end]||'We made it!');stepDone(1500);}}
     if(st&&st.k==='bus'&&BUS){const fr=document.getElementById('front');const p=Math.min(1,(t-BUS.t0)/1300),e=1-Math.pow(1-p,3);if(fr)fr.setAttribute('transform',`translate(${f1((1-e)*300)} 0)`);}}
   if(BB&&k==='beachball'){if(BB.fly){BB.vy+=1500*dt;BB.y+=BB.vy*dt;if(BB.y>=96&&BB.vy>0){BB.y=96;BB.fly=false;S.play.n++;tone(220,160,.15,.15,'triangle');say(cap(NUMW[Math.min(S.play.n,10)])+'!');advCheck();}}
@@ -1088,6 +1101,7 @@ function loop(t){
     else if(BALL.state==='in'&&t-BALL.t0>800){BALL={x:162,y:500,s:1,state:'rest'};}
     s+=at(BALL.x,BALL.y,48*BALL.s,ICONS.ball(paint(CI('White'),'plain')),BALL.state==='fly'?(t/2)%360:0);}
   fx.innerHTML=s;
+  if(l.v==='adv'&&k&&['beachball','kick','slide','bath'].includes(k)&&(t|0)%6===0)updateHint();
   if(ch){const tr=charTransform(t);if(ch.getAttribute('transform')!==tr)ch.setAttribute('transform',tr);}
 }
 requestAnimationFrame(loop);
@@ -1241,6 +1255,7 @@ const ADV={
     {k:'bus',say:'Here comes the school bus! Tap the bus to get on.',btn:'Get on!'},
     {k:'manner',scene:'bus',line:'Good morning!',reply:'Good morning, Zahra!',say:'Say good morning to the bus driver!'},
     {k:'ride',vehicle:'bus',world:'town',len:1300,end:'school',say:'Ride the bus to school!',btn:'Go!'},
+    {k:'go',scene:'school',say:"We're at school! Go inside.",btn:'Go in school'},
     {k:'class',goal:3,say:'Sit at your desk. Raise your hand to answer!',btn:'Raise your hand!'},
     {k:'ride',vehicle:'bus',world:'town',len:1300,end:'home',say:'School is over. Ride the bus home!',btn:'Go!'},
     {k:'manner',scene:'bus',line:'Thank you!',reply:"You're welcome! See you tomorrow!",say:'Say thank you to the bus driver!'},
@@ -1306,6 +1321,8 @@ function enterStep(){
   if(st.k==='bus')BUS={t0:performance.now(),boarding:0};
   if(st.k==='manner')S.manner={said:false};
   if(st.k==='class')S.cls={n:0};
+  if(S.walk)S.walk.hold=0;
+  l.going=0;
   POSE=poseFor();CHARC=character({noGround:true});POSE=DEFPOSE;
   say(st.say);
 }
@@ -1441,10 +1458,10 @@ function busSvg(dx,spin,girl,driverBubble){
   if(driverBubble)s+=sayBubble(220,248,driverBubble);
   return s+'</g>';
 }
-function sayBubble(x,y,t,flip){
-  const w=Math.max(110,t.length*10.5+30);const x0=Math.max(4,Math.min(296-w,x-w/2));
+function sayBubble(x,y,t,flip,ask){
+  const w=Math.max(110,(t.length+(ask?5:0))*10.5+30);const x0=Math.max(4,Math.min(296-w,x-w/2));
   return sh(`M${f1(x0)},${y-44} L${f1(x0+w)},${y-44} L${f1(x0+w)},${y} L${f1(x+(flip?-6:14))},${y} L${f1(x+(flip?-16:2))},${y+16} L${f1(x)},${y} L${f1(x0)},${y}Z`,'#FFFFFF',3)
-    +`<text x="${f1(x0+w/2)}" y="${y-15}" text-anchor="middle" font-family="'Baloo 2',system-ui,sans-serif" font-weight="800" font-size="18" fill="${INK}">${t}</text>`;
+    +`<text x="${f1(x0+w/2)}" y="${y-15}" text-anchor="middle" font-family="'Baloo 2',system-ui,sans-serif" font-weight="800" font-size="18" fill="${ask?'#FF5FA2':INK}">${ask?'Tap: ':''}${t}</text>`;
 }
 // fixed scenes used by adventure steps
 const SCN={
@@ -1473,11 +1490,13 @@ function advStageHtml(l,st){
   POSE=(st.k==='class'&&S.cls&&S.cls.up)?{arms:'up',eyes:'open'}:poseFor();CHARC=character({noGround:true,noHand:st.k==='class'});POSE=DEFPOSE;
   if(st.k==='act')return {vb:PLAYVB[st.a]||'0 0 300 560',html:playScene(st.a)};
   if(st.k==='prop')return {vb:'0 0 300 560',html:propScene(st,l)};
+  if(st.k==='go')return {vb:'0 0 300 560',html:`<rect ${BIG} fill="#BDE8FF"/>`+uni(cloud(60,70,16,11,8),'#fff',5)+floor(430,'#9ED36A')+endMark('school',55,430)+`<rect x="-800" y="470" width="1900" height="800" fill="#B7BFC8"/>`+line('M-800,470 L1100,470',INK,3)+`<g id="char">${CHARC}</g>`};
   if(st.k==='walk'||st.k==='ride')return {vb:'0 0 300 560',html:`<g id="world">${worldSvg(st.world,S.walk,st.end)}</g><g id="char">${st.vehicle==='bus'?'':CHARC}</g><g id="front">${frontSvg(st,0)}</g>`};
   if(st.k==='bus'){const bx=BUS&&BUS.boarding?84:84;return {vb:'0 0 300 560',html:SCENES.town()+`<g id="front">${busSvg(bx,0,'',null)}</g><g id="char">${CHARC}</g>`};}
   if(st.k==='manner'){
-    if(st.scene==='bus')return {vb:'0 220 300 300',html:SCENES.town()+busSvg(-18,0,CHARC,S.manner&&S.manner.reply?st.reply:null)+(S.manner&&S.manner.said?sayBubble(162,292,st.line,true):'')};
-    return {vb:'0 0 300 560',html:SCENES[S.bg]('dress')+`<g id="char">${CHARC}</g>`+(S.manner&&S.manner.said?sayBubble(150,40,st.line):'')+(S.manner&&S.manner.reply?sayBubble(150,520,st.reply):'')};
+    const said=S.manner&&S.manner.said;
+    if(st.scene==='bus')return {vb:'0 220 300 300',html:SCENES.town()+busSvg(-18,0,CHARC,S.manner&&S.manner.reply?st.reply:null)+sayBubble(162,292,st.line,true,!said)};
+    return {vb:'0 0 300 560',html:SCENES[S.bg]('dress')+`<g id="char">${CHARC}</g>`+sayBubble(150,70,st.line,false,!said)+(S.manner&&S.manner.reply?sayBubble(150,520,st.reply):'')};
   }
   if(st.k==='class'){
     return {vb:'0 20 300 480',html:SCN.classroom()+`<g transform="translate(-188 168) scale(.78)">${nina({apron:'#2F86E8'})}</g>`+sh('M0,300 L66,300 L66,470 L0,470Z','#B07548',3)
@@ -1568,17 +1587,16 @@ function panelFor(l){
       const st=advStep(l),A=ADV[l.place];if(!st)return '';
       const big=(attr,label,ic)=>`<button class="wide please bounce" ${attr}="1" aria-label="${esc(label)}">${iconSvg(ic,paint(CI('Yellow'),'plain'),CI('Yellow'))}${esc(label)}</button>`;
       let h=ask(esc(st.say))+`<div class="dots" aria-label="Step ${l.i+1} of ${A.steps.length}">${A.steps.map((_,i)=>`<i class="${i<l.i?'d':i===l.i?'c':''}"></i>`).join('')}</div>`;
-      if(st.k==='prop')h+=big('data-prop',st.btn||'Okay!','sparkle');
       if(st.k==='walk'||st.k==='ride'){const W=S.walk;
-        if(W&&W.pending){const E=EVENTS[W.pending.e];h+=`<div class="grid ${E.btns.length>1?'acts':''}">`+E.btns.map(([t,c])=>`<button class="wide please bounce" data-ev="${c}" ${W.pending[c]?'disabled':''}>${t}</button>`).join('')+'</div>';}
-        else h+=big('data-walk',st.btn||'Walk!',st.vehicle||'walk');}
-      if(st.k==='bus')h+=big('data-board',st.btn||'Get on!','bus');
-      if(st.k==='class')h+=`<div class="page"><span class="big">${S.cls?S.cls.n:0}</span><span class="nm">of ${st.goal}</span></div>`+big('data-hand',st.btn,'star');
-      if(st.k==='manner')h+=`<div class="sub">What do you say?</div>`+big('data-line',st.line,'please');
+        if(W&&W.pending)h+=`<div class="sub">${W.pending.e==='stop'?'Press Look left and Look right':'Tap it, or press the pink button'}</div>`;
+        else h+=`<div class="sub">Hold ${st.vehicle==='bike'?'Pedal':st.vehicle==='bus'?'Drive':st.world==='field'?'Run':'Walk'} to move, or tap the picture</div>`;
+        if(W&&W.n)h+=`<div class="page"><span class="big">${W.n}</span><span class="nm">${{puddle:'puddles',shell:'shells',cone:'cones'}[(st.events||[{e:''}])[0].e]||''}</span></div>`;}
+      if(st.k==='class')h+=`<div class="page"><span class="big">${S.cls?S.cls.n:0}</span><span class="nm">of ${st.goal}</span></div>`;
+      if(st.k==='manner')h+=`<div class="sub">What do you say? Tap the speech bubble</div>`;
+      if(st.k==='prop'||st.k==='bus'||st.k==='go')h+=`<div class="sub">Tap it in the picture, or press the pink button</div>`;
       if(st.k==='act'){const A2=ACTS[st.a],P=S.play||{},v=st.a==='castle'?P.pieces:st.a==='sleep'?(P.dark?1:0):P.n;
         if(st.a==='read'){const PG=PAGES[P.page||0];h+=`<div class="page">`+(PG.n?`<span class="big">${PG.n}</span>`+Array.from({length:PG.n},()=>iconSvg(PG.ic,paint(CI(PG.c),'plain'),CI(PG.c))).join(''):PG.L!=null?`<span class="big" style="color:var(--pop)">${NAME[PG.L]}</span><span class="nm">${NAME.map((L,i)=>i===PG.L?`<b>${L}</b>`:L).join('')}</span>`:`<span class="nm">The End</span>`)+'</div>';}
-        else h+=`<div class="page"><span class="big">${Math.min(v||0,st.goal)}</span><span class="nm">of ${st.goal}</span></div>`;
-        h+=big('data-play',st.a==='castle'?'Build!':A2.btn,A2.ic);}
+        else h+=`<div class="page"><span class="big">${Math.min(v||0,st.goal)}</span><span class="nm">of ${st.goal}</span></div>`;}
       return h;}
     case 'prizes':{
       const n=S.stars||0,list=prizeList().filter(p=>p.name&&p.cost>0).slice().sort((a,b)=>a.cost-b.cost);
@@ -1610,10 +1628,96 @@ function renderStage(){
   else if(l.v==='cert'&&S.claims&&S.claims[l.i]){html=certScene(S.claims[l.i]);}
   else if(l.v==='clean'&&S.clean){POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character({noHand:true,noGround:true})}</g>`+at(BOXP[0],BOXP[1]+20,90,ICONS.box())+S.clean.toys.filter(t=>!t.done).map(t=>at(t.x,t.y,44,ICONS[t.k](paint(t.c,'plain'),t.c),t.r)).join('');}
   else{POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character()}</g>`;}
-  stage.setAttribute('viewBox',vb);stage.innerHTML=html+'<g id="fx"></g>';
+  stage.setAttribute('viewBox',vb);stage.innerHTML=html+'<g id="fx"></g><g id="hint" pointer-events="none">'+(l.v==='adv'?hintSvg():'')+'</g>';
 }
 function renderTop(){const [t,ic]=levelTitle();$('#titleTx').textContent=t;$('#titleIc').innerHTML=ic;$('#backBtn').disabled=NAV.length<=1;}
-function renderPanel(){$('#rows').innerHTML=panelFor(lvl());$('#panel').scrollTop=0;}
+function renderPanel(){$('#rows').innerHTML=panelFor(lvl());$('#panel').scrollTop=0;renderPad();updateHint();}
+const BTNIC={Walk:'walk',Run:'walk',Pedal:'bike',Drive:'bus'};
+function padSpec(){
+  const l=lvl(),st=l.v==='adv'&&advStep(l);if(!st)return null;
+  const W=S.walk,pend=W&&W.pending;
+  if(st.k==='walk'||st.k==='ride'){
+    const mv=st.vehicle==='bike'?'Pedal':st.vehicle==='bus'?'Drive':st.world==='field'?'Run':'Walk';
+    const stop=pend&&pend.e==='stop';
+    const move=stop?{l:'Look left',r:'Look right',glowL:!pend.l,glowR:!pend.r}:{l:'Back',r:mv,glowR:!pend&&W&&W.off<1,off:!!pend};
+    let act=null;
+    if(st.world==='street')act={id:'jump',label:'Jump',ic:'drop',glow:pend&&pend.e==='puddle'};
+    else if(st.world==='sand')act={id:'ev',label:'Pick up',ic:'shell',glow:!!pend,dis:!pend};
+    else if(st.world==='field')act={id:'ev',label:'Run around',ic:'star',glow:!!pend,dis:!pend};
+    else if(st.world==='hall')act={id:'ev',label:'Catch',ic:'heart',glow:!!pend,dis:!pend};
+    else if(st.vehicle==='bike')act={id:'bell',label:'Ring bell',ic:'bike'};
+    else if(st.vehicle==='bus')act={id:'honk',label:'Honk',ic:'bus'};
+    return {move,acts:act?[act]:[]};
+  }
+  const one=(label,ic)=>({acts:[{id:'do',label,ic,glow:true}]});
+  if(st.k==='prop')return one(st.btn||(st.prop?'Put it on':'Take it off'),'sparkle');
+  if(st.k==='go')return one(st.btn,'walk');
+  if(st.k==='bus')return one('Get on the bus','bus');
+  if(st.k==='class')return one('Raise hand','star');
+  if(st.k==='manner')return one(st.line,'please');
+  if(st.k==='act'){const a=ACTS[st.a];return one(st.a==='castle'?'Build':st.a==='read'?'Turn page':a.btn.replace(/!$/,''),a.ic);}
+  return null;
+}
+function renderPad(){
+  const sp=padSpec(),pad=$('#pad');
+  if(!sp||quizOpen){pad.hidden=true;return;}
+  pad.hidden=false;
+  const arr=d=>`<svg viewBox="0 0 44 44" aria-hidden="true"><path d="${d<0?'M28,8 L12,22 L28,36Z':'M16,8 L32,22 L16,36Z'}" fill="currentColor"/></svg>`;
+  $('#padArrows').innerHTML=sp.move?`<button class="back${sp.move.glowL?' glow':''}" data-dir="-1" aria-label="${sp.move.l}">${arr(-1)}${sp.move.l}</button><button class="${sp.move.glowR?'glow':''}" data-dir="1" aria-label="${sp.move.r}" ${sp.move.off?'aria-disabled="true"':''}>${arr(1)}${sp.move.r}</button>`:'';
+  $('#padActs').innerHTML=sp.acts.map(a=>`<button class="actb${a.glow?' glow':''}" data-act2="${a.id}" aria-label="${esc(a.label)}" ${a.dis?'aria-disabled="true"':''}>${iconSvg(a.ic,paint(CI('Yellow'),'plain'),CI('Yellow'))}${esc(a.label)}</button>`).join('');
+}
+function padDo(id){
+  const l=lvl(),st=l.v==='adv'&&advStep(l);if(!st||l.done||quizOpen)return;const W=S.walk,t=performance.now();
+  if(id==='jump'){if(W&&W.pending&&W.pending.e==='puddle'){eventDo('go');return;}ANIM={k:'hop',t0:t,dur:520};tone(400,700,.18,.1);say(pick(['Hop!','Jump!','Boing!']));return;}
+  if(id==='ev'){if(W&&W.pending&&W.pending.e!=='stop')eventDo('go');else say('Keep walking!');return;}
+  if(id==='bell'){tone(1400,1400,.25,.12,'triangle');setTimeout(()=>tone(1400,1400,.25,.12,'triangle'),180);say('Ring ring!');return;}
+  if(id==='honk'){tone(330,300,.35,.14,'square');setTimeout(()=>tone(330,300,.35,.14,'square'),300);say('Beep beep!');return;}
+  if(st.k==='prop')propDo();
+  else if(st.k==='go')goIn();
+  else if(st.k==='bus')board();
+  else if(st.k==='class')classAsk();
+  else if(st.k==='manner')mannerDo();
+  else if(st.k==='act'){if(st.a==='castle')playTap(240,500,false);else playTap(150,300,true);}
+}
+function goIn(){const l=lvl();if(l.going)return;l.going=performance.now();pop(true);say("Let's go in!");stepDone(1100);}
+// buttons: hold an arrow to keep moving; at a stop sign they look left and right
+(function(){
+  const pad=$('#pad');
+  const up=()=>{const W=S.walk;if(W)W.hold=0;pad.querySelectorAll('.held').forEach(b=>b.classList.remove('held'));};
+  pad.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-dir]');if(!b)return;e.preventDefault();const W=S.walk,dir=+b.dataset.dir;if(!W||quizOpen)return;
+    if(W.pending&&W.pending.e==='stop'){eventDo(dir<0?'l':'r');renderPad();return;}
+    if(W.pending)return;W.hold=dir;b.classList.add('held');if(dir>0)walkGo();else W.target=Math.max(0,W.off-60);});
+  ['pointerup','pointercancel'].forEach(ev=>pad.addEventListener(ev,up));
+  pad.addEventListener('pointerout',e=>{if(e.target.closest&&e.target.closest('[data-dir]'))up();});
+  pad.addEventListener('contextmenu',e=>e.preventDefault());
+  pad.addEventListener('click',e=>{const b=e.target.closest('[data-act2]');if(!b)return;pop(true);padDo(b.dataset.act2);});
+  document.addEventListener('keydown',e=>{const l=lvl();if(l.v!=='adv'||!$('#sheet').hidden)return;
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const W=S.walk;if(!W)return;e.preventDefault();
+      if(W.pending&&W.pending.e==='stop'){eventDo(e.key==='ArrowLeft'?'l':'r');renderPad();return;}
+      if(!W.pending){if(e.key==='ArrowRight')walkGo();else W.target=Math.max(0,W.off-80);}}
+    if(e.key===' '||e.key==='Enter'){const sp=padSpec();if(sp&&sp.acts[0]&&document.activeElement===document.body){e.preventDefault();padDo(sp.acts[0].id);}}});
+})();
+// a glowing ring on the thing to tap next
+function hintAt(){
+  const l=lvl(),st=l.v==='adv'&&advStep(l);if(!st||l.done)return null;
+  if(st.k==='prop')return st.prop?[246,458]:({shoes:[150,492],back:[150,250],hat:[150,46]}[st.off]||[150,300]);
+  if(st.k==='walk'||st.k==='ride'){const W=S.walk;if(W&&W.pending)return ({puddle:[150,506],shell:[150,510],cone:[150,492],balloon:[150,296]})[W.pending.e]||null;return null;}
+  if(st.k==='bus')return BUS&&performance.now()-BUS.t0>900&&!BUS.boarding?[200,390]:null;
+  if(st.k==='class')return [184,330];
+  if(st.k==='go')return [150,404];
+  if(st.k==='manner')return S.manner&&!S.manner.said?(st.scene==='bus'?[162,270]:[150,48]):null;
+  if(st.k==='act'){const P=S.play||{};switch(st.a){
+    case 'swim':return [150,390];case 'beachball':return [232,BB?BB.y:96];case 'castle':return [240,500];
+    case 'kick':return BALL&&BALL.state==='rest'?[BALL.x,BALL.y]:null;case 'slide':return SLIDE&&!SLIDE.on?[234,214]:null;
+    case 'bath':{const b=FX.find(q=>q.type==='bubble');return b?[b.x,b.y]:null;}
+    case 'brush':return [166,166];case 'cake':return P.n<4?[[114,138,162,186][P.n],290]:null;
+    case 'read':return [150,262];case 'sleep':return P.dark?null:[34,318];
+    default:return [150,280];}}
+  return null;
+}
+function hintSvg(){const h=hintAt();if(!h||RM&&false)return '';const [x,y]=h;
+  return `<circle cx="${f1(x)}" cy="${f1(y)}" r="30" fill="none" stroke="#FFC93C" stroke-width="7">${RM?'':'<animate attributeName="r" values="24;40;24" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.35;1" dur="1.2s" repeatCount="indefinite"/>'}</circle><circle cx="${f1(x)}" cy="${f1(y)}" r="30" fill="none" stroke="${INK}" stroke-width="2" opacity=".5"/>`;}
+function updateHint(){const g=document.getElementById('hint');if(g)g.innerHTML=hintSvg();}
 function renderAll(){renderTop();renderStage();renderPanel();}
 
 // ---------- questions ----------
@@ -1682,7 +1786,7 @@ function buildKind(k,meta){
   return buildKind('count',meta);
 }
 let Q=null,onDone=null,wrongs=0,rec=null;
-function startQuiz(meta,done){
+function startQuiz(meta,done){$('#pad').hidden=true;
   Q=buildQuiz(meta);onDone=done;wrongs=0;quizOpen=true;
   $('#qPrompt').textContent=Q.text;$('#qVis').innerHTML=Q.vis;
   $('#qChoices').innerHTML=Q.choices.map(c=>`<button data-k="${c.k}" class="${c.cls||''}" style="${c.style||''}" aria-label="${c.name}">${c.html}</button>`).join('');
@@ -1690,7 +1794,7 @@ function startQuiz(meta,done){
   $('#panel').classList.add('quizzing');$('#panel').scrollTop=0;$('#quiz').hidden=false;
   say(Q.spoken);
 }
-function finishQuiz(){quizOpen=false;stopRec();$('#quiz').hidden=true;$('#panel').classList.remove('quizzing');const d=onDone;onDone=null;Q=null;if(d)d();}
+function finishQuiz(){quizOpen=false;setTimeout(()=>{if(!quizOpen)renderPad();},0);stopRec();$('#quiz').hidden=true;$('#panel').classList.remove('quizzing');const d=onDone;onDone=null;Q=null;if(d)d();}
 function answer(k){
   if(!Q)return;
   const btn=$(`#qChoices [data-k="${k}"]`),c=Q.choices.find(x=>x.k===k);
@@ -1804,8 +1908,10 @@ stage.addEventListener('click',e=>{
   if(l.v==='adv'){const st=advStep(l);if(!st||l.done)return;
     if(st.k==='act'){playTap(x,y,false);return;}
     if(st.k==='prop'){propDo();return;}
-    if(st.k==='walk'||st.k==='ride'){const W=S.walk;if(W&&W.pending){if(EVENTS[W.pending.e].btns.length===1)eventDo('go');}else walkGo();return;}
+    if(st.k==='walk'||st.k==='ride'){const W=S.walk;if(W&&W.pending){if(EVENTS[W.pending.e].btns.length===1)eventDo('go');}else if(x<100&&W){W.target=Math.max(0,W.off-80);}else walkGo();return;}
+    if(st.k==='act'&&st.a==='sleep'&&Math.hypot(x-34,y-318)<60){playTap(x,y,true);return;}
     if(st.k==='bus'){board();return;}
+    if(st.k==='go'){goIn();return;}
     if(st.k==='class'){classAsk();return;}
     if(st.k==='manner'){mannerDo();return;}
     return;}
