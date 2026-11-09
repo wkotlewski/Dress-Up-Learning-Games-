@@ -59,7 +59,7 @@ There's a daily limit of 30 stars, which you can change. Her stars show in the c
 | New toy | 80 |
 | Playdate with a friend | 100 |
 
-When she has enough stars, she taps a prize and answers **"Yes, please!"** The stars are used up, and she gets a **certificate** with her picture to show a grown-up. Past prizes stay under **My prizes**. In the grown-up settings you can rename prizes, change their star costs and pictures, add or remove prizes, give or take away stars, set the daily limit, and check off prizes once she's received them.
+When she has enough stars, she taps a prize and answers **"Yes, please!"** The stars are used up, and she gets a **certificate** with her picture to show a grown-up. Past prizes stay under **My prizes**. In the grown-ups corner you can rename prizes, change their star costs and pictures, add or remove prizes, give or take away stars, set the daily limit, and check off prizes once she's received them.
 
 ### Nail salon
 
@@ -67,21 +67,30 @@ When she taps **Nails**, the game asks if she wants to go to the nail salon. The
 
 ### Learning and manners
 
-- **Questions** pop up now and then before something new goes on: "Which one is pink?", "How many stars?", "What number is on your jersey?", "How many pink nails?", "Which one is the heart?", "Z, A, H… what comes next?" She can tap the answer or press **Say it!** and say it out loud. A wrong answer tells her what she picked and lets her try again.
+- **Questions** pop up before something new goes on and between adventure scenes: "Which one is pink?", "How many stars?", "Find the number 7!", "Find the letter B!", "What letter does Moon start with?", "Red, blue, red, blue… what comes next?", "Which one is big?", "Which one has more?", "Which one is the heart?", "Z, A, H… what comes next?" She can tap the answer or press **Say it!** and say it out loud. A wrong answer tells her what she picked and lets her try again.
 - **Please and thank you:** at the salon, Nina offers each step and Zahra answers **"Yes, please!"** or **"No, thank you."** She finishes each step with **"Thank you, Nina!"** and Nina says "You're welcome!"
 - **Clean-up time:** after she plays somewhere, leaving brings up the toys on the floor. She taps each one to put it away in the toy box, counting as she goes, "so we don't lose them."
 
 ### Your voice
 
-In the grown-up settings, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. Record as many or as few as you like.
+In the grown-ups corner, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. Record as many or as few as you like.
 
 Whenever the game says a word or phrase you recorded, it plays your voice, even in the middle of a sentence. "Which one is pink?" plays your "Which one is" and your "Pink." The built-in voice fills in everything else. Recordings stay in that browser on that device, so record on the iPad she plays on.
 
 **Voice type** lets you choose any English voice the device has, set the pitch lower, middle or higher and the speed slow, normal or quick, and tap **Hear it** to try it.
 
-### For grown-ups
+### Grown-ups corner
 
-The gear button manages stars and prizes, turns questions off, some or lots, turns clean-up time on or off, turns talking on or off, records your voice, changes the voice type, and starts over. Her outfit is saved in the browser between visits. Answering out loud needs a browser that supports speech recognition, like Chrome, or Safari on iPhone and iPad. It asks for the microphone the first time.
+**Press and hold** the gear button for a second and a half to open it, like Star Knight League. A quick tap only shows "Grown-ups: press and hold", so she can't wander in. It has:
+
+- **How she's doing:** for each skill, how often she's right on the first try, what she's doing great at and what needs practice, plus a list of recently missed questions.
+- **Questions:** how often they pop up (off, some, lots, or every time), the level (easier: numbers 1 to 5, or turning 4: 1 to 10), and which skills to practice: colors, counting, numbers, shapes, spelling ZAHRA, letters, first-letter sounds, patterns, big and small, and more or fewer. Questions come up when she puts something on, between adventure scenes, and in class.
+- **Stars and prizes:** give stars (+1, +5, +10, +20, +50), take some away or set them to 0, make her earn double or triple stars, set the daily limit (20, 30, 50, 100 or none), edit the prize list (names, costs, pictures), restore the default prizes, clear the prizes she's gotten, and check off prizes once she has them.
+- **Clean-up time** on or off.
+- **Talking and your voice:** talking on or off, record your voice, voice type, pitch and speed.
+- **Reset** (each one asks you to tap twice): her clothes, makeup and nails; stars and prizes; the learning tracker; or everything.
+
+Her outfit, stars and prizes are saved in the browser between visits. Answering out loud needs a browser that supports speech recognition, like Chrome, or Safari on iPhone and iPad. It asks for the microphone the first time.
 
 ### Run it
 
