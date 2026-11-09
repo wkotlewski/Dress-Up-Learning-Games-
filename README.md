@@ -13,26 +13,53 @@ A dress-up game for a girl turning 4 who is learning colors, shapes, numbers, ho
 Each screen shows only the next choice, and the game reads it out loud. A big **Back** button and a **Home** button are always at the top, and the top bar shows where she is.
 
 1. **Where are we going today?** She picks a place.
-2. **In that place**, she gets dressed in a matching outfit. She can pick something to play, or choose what to change: tops, bottoms, shoes, hats, and so on. Only the clothes that fit that place show up.
+2. **In that place**, she gets dressed in a matching outfit. She can go on that place's **adventure**, or choose what to change: tops, bottoms, shoes, hats, and so on. Only the clothes that fit that place show up.
 3. **Pick a top** shows only the tops. She taps one and it goes on.
 4. **Pick a color!** shows colors and patterns for that one thing. Then she taps **Done**.
 
 She can also tap the girl herself: her head for hats, her chest for tops, her legs for bottoms, her feet for shoes, her face for makeup, or her hands to go to the nail salon.
 
-### Places and things to do
+### Places and adventures
 
-| Place | Clothes | Let's play |
+Each place has an adventure: a few scenes in a row where she makes the girl do things. Dots at the top show how far along she is, the big button always says what to do next, and tapping the picture works too.
+
+| Place | Clothes | Adventure |
 |---|---|---|
-| Rainy day | raincoat, rain boots, rain hat, umbrella | Jump in puddles · Open the umbrella (count to five and a rainbow appears) |
-| Sunny park | T-shirt, shorts, cap, sunglasses, bubble wand | Fly a kite (tap to change its color) · Blow and pop bubbles |
-| Fancy party | party dress, ball gown, tiara, pearls, purse | Dance · Twirl |
-| Ballet show | leotard, tutu, tights, ballet slippers | Dance on stage · Take a bow (flowers fly) |
-| Soccer practice | jersey with a number, shorts, soccer socks, cleats | Kick the ball into the goal · Cheer |
-| Bedtime | pajamas, nightgown, slippers, sleepy cap, sleep mask, teddy | Read a book with Teddy (the pages count 1–5 and spell Z‑A‑H‑R‑A) · Go to sleep (lights off, Zzz) |
-| Beach | swimsuit, swim ring, flip-flops, sun hat, sand bucket | Swim and splash · Build a sandcastle one piece at a time, counting |
+| Rainy day | raincoat, rain boots, rain hat, umbrella | **Puddle walk:** put on rain boots → walk down the sidewalk and jump in each muddy puddle → home, take off the muddy boots and put them on the mat |
+| School day | name shirt, skirt, sneakers, backpack | **School day:** put on the backpack → the bus pulls up, tap to get on → say "Good morning!" to the driver → ride to school → sit at a desk and raise your hand to answer three questions → ride home → say "Thank you!" to the driver → hang up the backpack |
+| Sunny park | T-shirt, shorts, cap, sunglasses, bubble wand | **Bike to the park:** put on a helmet → ride the bike, stop at the stop sign and look left and right → helmets off on the playground → go down the slide three times → helmet back on → ride home safely |
+| Fancy party | party dress, ball gown, tiara, pearls, purse | **The party:** walk in and catch a balloon → dance → blow out four candles on the cake → say "Thank you for the party!" |
+| Ballet show | leotard, tutu, tights, ballet slippers | **Ballet class:** put on slippers → hold the barre and plié four times → twirl in the middle → take a bow while flowers fly → take off the slippers and put them in the bag |
+| Soccer practice | jersey with a number, shorts, soccer socks, cleats | **Soccer practice:** put on cleats → warm up running around the cones → kick three goals → say "Good game!" → take off the cleats |
+| Bedtime | pajamas, nightgown, slippers, sleepy cap, sleep mask, teddy | **Bedtime:** bath (pop six bubbles) → brush teeth while counting to ten → put on pajamas → read a story with Teddy (the pages count 1–5 and spell Z‑A‑H‑R‑A) → lights off, good night |
+| Beach | swimsuit, swim ring, flip-flops, sun hat, sand bucket | **Beach day:** walk to the water picking up shells → splash in the water → walk back to the sand → bounce the beach ball → build a sandcastle one piece at a time |
 | My room | every piece of clothing in the game | Dance · Twirl |
 
 There's also **Makeup** (lip gloss, cheeks, eye shadow, sticker tattoos) and **Me** (skin tone, hairstyle, hair color). She starts as a mixed-race girl with brown skin and dark curly hair.
+
+### Stars and prizes
+
+This works like the Prize Shop in Star Knight League, made for a toddler. She earns **stars**:
+
+- 1 star for each right answer
+- 2 stars for cleaning up
+- 3 stars for finishing at the nail salon
+- 5 stars for each adventure, and 10 the first time she finishes it
+
+There's a daily limit of 30 stars, which you can change. Her stars show in the corner. Tapping them opens a **star jar** that fills toward the next prize, and a **prize list** with pictures:
+
+| Prize | Stars |
+|---|---|
+| Stickers | 10 |
+| Bubble bath | 15 |
+| Extra bedtime story | 20 |
+| Trip to the park | 30 |
+| Ice cream | 40 |
+| Pick a movie | 50 |
+| New toy | 80 |
+| Playdate with a friend | 100 |
+
+When she has enough stars, she taps a prize and answers **"Yes, please!"** The stars are used up, and she gets a **certificate** with her picture to show a grown-up. Past prizes stay under **My prizes**. In the grown-up settings you can rename prizes, change their star costs and pictures, add or remove prizes, give or take away stars, set the daily limit, and check off prizes once she's received them.
 
 ### Nail salon
 
@@ -54,7 +81,7 @@ Whenever the game says a word or phrase you recorded, it plays your voice, even 
 
 ### For grown-ups
 
-The gear button turns questions off, some or lots, turns clean-up time on or off, turns talking on or off, records your voice, changes the voice type, and starts over. Her outfit is saved in the browser between visits. Answering out loud needs a browser that supports speech recognition, like Chrome, or Safari on iPhone and iPad. It asks for the microphone the first time.
+The gear button manages stars and prizes, turns questions off, some or lots, turns clean-up time on or off, turns talking on or off, records your voice, changes the voice type, and starts over. Her outfit is saved in the browser between visits. Answering out loud needs a browser that supports speech recognition, like Chrome, or Safari on iPhone and iPad. It asks for the microphone the first time.
 
 ### Run it
 
