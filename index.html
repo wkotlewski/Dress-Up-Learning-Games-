@@ -46,7 +46,8 @@ button[disabled]{opacity:.4}
 
 .main{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
 .stagebox{flex:1;min-height:150px;border:4px solid var(--ink);border-radius:26px;overflow:hidden;background:var(--card);box-shadow:0 5px 0 var(--ink);position:relative}
-#stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:manipulation}
+#stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.drg{cursor:grab}
 .panel{position:relative;flex:0 0 auto;max-height:56%;overflow-y:auto;overflow-x:hidden;padding:2px 2px 8px}
 .panel.quizzing{overflow:hidden;min-height:310px}
 .rows{display:flex;flex-direction:column;gap:8px}
@@ -837,9 +838,10 @@ function salonScene(st){
   if(st==='soak'){hands+=`<rect x="70" y="248" width="460" height="196" rx="60" fill="#8FD3FF" opacity=".55" stroke="${INK}" stroke-width="4"/>`+S.salon.bub.map(b=>at(b.x,b.y,b.r*2.2,ICONS.bubble())).join('');}
   s+=`<g transform="translate(${HX} ${HY}) scale(${HS})">${hands}</g>`;
   if(st==='dry'){const on=S.salon.dry&&S.salon.dry.on;s+=sh('M120,214 Q300,124 480,214 L470,226 Q300,146 130,226Z','#B79BE8')+(on?`<path d="M140,226 Q300,160 460,226 L470,400 Q300,330 130,400Z" fill="#E6D9FF" opacity=".45"/>`:'');}
-  if(st==='lotion') s+=at(540,300,70,ICONS.lotion());
-  if(st==='file') s+=at(546,300,80,ICONS.file());
-  if(st==='polish') s+=at(546,290,70,ICONS.polish(paint(S.color,S.pat)));
+  const T=h=>`<g class="drg" data-drag="stool">${h}</g>`;
+  if(st==='lotion') s+=T(at(540,300,70,ICONS.lotion()));
+  if(st==='file') s+=T(at(546,300,80,ICONS.file()));
+  if(st==='polish') s+=T(at(546,290,70,ICONS.polish(paint(S.color,S.pat))));
   s+=bubbleMsg(S.salon.msg);
   return s;
 }
@@ -900,7 +902,7 @@ const lvl=()=>NAV[NAV.length-1];
 const STATIONS=[['soak','Soak','bowl'],['file','Shape','file'],['polish','Polish','polish'],['art','Sparkles','gem'],['dry','Dry','lamp'],['lotion','Lotion','lotion'],['tattoo','Tattoos','butterfly']];
 const STN=Object.fromEntries(STATIONS.map(s=>[s[0],s]));
 const OFFER={soak:'Would you like a bubbly soak?',file:'Would you like me to shape your nails?',polish:'Would you like some nail polish?',art:'Would you like sparkles on your nails?',dry:'Shall we dry your nails?',lotion:'Would you like some soft lotion?',tattoo:'Would you like a hand tattoo?'};
-const HOWTO={soak:'Pop the bubbles!',file:'Pick a shape, then tap a nail!',polish:'Pick a color, then tap a nail!',art:'Pick a sparkle, then tap a nail!',dry:'Press Dry and count to five!',lotion:'Tap your hands!',tattoo:'Pick a tattoo, then tap a hand!'};
+const HOWTO={soak:'Pop the bubbles!',file:'Pick a shape, then drag the file onto a nail!',polish:'Pick a color, then drag the polish onto a nail!',art:'Pick a sparkle, then tap a nail!',dry:'Press Dry and count to five!',lotion:'Drag the lotion onto your hands!',tattoo:'Pick a tattoo, then tap a hand!'};
 function placeName(){return S.place?PLACES[S.place].name:'My room';}
 function catLabel(c){const P=PLACES[S.place];return (P&&P.labels&&P.labels[c])||CATN[c];}
 function catAsk(c){const P=PLACES[S.place];return (P&&P.asks&&P.asks[c])||CAT_ASK[c];}
@@ -908,16 +910,16 @@ function levelAsk(l=lvl()){
   switch(l.v){
     case 'home':return 'Where are we going today?';
     case 'place':return S.place?(ADV[S.place]?`${PLACES[S.place].name}! Go on an adventure, or pick what to wear.`:`${PLACES[S.place].name}! Let's play, or pick what to wear.`):"Let's play, or pick what to wear.";
-    case 'cat':return catAsk(l.cat);
-    case 'color':return 'Pick a color!';
+    case 'cat':return catAsk(l.cat)+' Drag one onto Zahra!';
+    case 'color':return 'Drag a color onto her!';
     case 'face':return 'Makeup time! What should we do?';
-    case 'facetool':return l.k==='stickers'?'Pick a tattoo, then tap her face!':'Pick a color!';
+    case 'facetool':return l.k==='stickers'?'Drag a tattoo onto her face!':'Drag a color onto her '+({lips:'lips',cheeks:'cheeks',eyes:'eyes'}[l.k]||'face')+'!';
     case 'askSalon':return 'Do you want to go to the nail salon?';
     case 'salon':return S.salon.msg||'What should we do next?';
     case 'offer':return OFFER[l.k];
     case 'station':return HOWTO[l.k];
     case 'play':return ACTS[l.k].say;
-    case 'clean':return "Clean-up time! Tap the toys to put them away, so we don't lose them.";
+    case 'clean':return "Clean-up time! Drag the toys into the toy box, so we don't lose them.";
     case 'adv':{const st=advStep(l);return st?st.say:'';}
     case 'prizes':{const n=S.stars||0;return `You have ${n} star${n===1?'':'s'}! Pick a prize.`;}
     case 'claim':{const p=prizeList().find(x=>x.id===l.id);return p?`Get ${p.name}? It uses ${p.cost} stars.`:'';}
@@ -995,9 +997,11 @@ function finishClean(skip){
 function cleanTap(x,y){
   const C=S.clean;if(!C)return;
   let best=null,bd=60;C.toys.forEach(t=>{if(!t.done){const d=Math.hypot(t.x-x,t.y-y);if(d<bd){bd=d;best=t;}}});
-  if(!best)return;
-  best.done=true;C.n++;
-  FX.push({type:'fly',k:best.k,c:best.c,x0:best.x,y0:best.y,t:0,life:.6});
+  if(best)cleanToy(best);
+}
+function cleanToy(best,fx,fy){
+  const C=S.clean;if(!C||best.done)return;best.done=true;C.n++;
+  FX.push({type:'fly',k:best.k,c:best.c,x0:fx==null?best.x:fx,y0:fy==null?best.y:fy,t:0,life:.6});
   pop(true);say(cap(NUMW[C.n])+'!');
   renderStage();renderPanel();
   if(C.n>=C.toys.length)setTimeout(()=>{if(S.clean===C)finishClean(false);},900);
@@ -1481,7 +1485,7 @@ const SCN={
 function propScene(st,l){
   const bg=st.scene?(SCN[st.scene]?SCN[st.scene]():SCENES[st.scene]('dress')):SCENES[S.bg]('dress');
   let s=bg+`<g id="char">${CHARC}</g>`;
-  if(st.prop){const it=BY[st.prop];s+=`<g>${RM?'':'<animateTransform attributeName="transform" type="translate" values="0 0;0 -14;0 0" dur="1s" repeatCount="indefinite"/>'}<svg x="198" y="410" width="96" height="96" viewBox="${it.vb}">${it.draw(paint(CI(st.color||'Pink'),st.pat||'plain'),{c:CI(st.color||'Pink'),n:7},it.thumbCtx||{hand:[210,330]})}</svg></g>`;}
+  if(st.prop){const it=BY[st.prop];s+=`<g class="drg" data-drag="prop">${RM?'':'<animateTransform attributeName="transform" type="translate" values="0 0;0 -14;0 0" dur="1s" repeatCount="indefinite"/>'}<svg x="198" y="410" width="96" height="96" viewBox="${it.vb}">${it.draw(paint(CI(st.color||'Pink'),st.pat||'plain'),{c:CI(st.color||'Pink'),n:7},it.thumbCtx||{hand:[210,330]})}</svg></g>`;}
   else{ s+=st.off==='back'||st.off==='hat'?line('M210,300 L290,300',INK,6)+`<circle cx="250" cy="310" r="6" fill="${INK}"/>`:`<rect x="200" y="486" width="96" height="30" rx="8" fill="#8E3B22" stroke="${INK}" stroke-width="3"/>`;
     if(l.putAway&&BY[l.putAway.id]){const it=BY[l.putAway.id];s+=`<svg x="204" y="${st.off==='back'||st.off==='hat'?300:430}" width="90" height="90" viewBox="${it.vb}">${it.draw(paint(l.putAway.c,l.putAway.p),l.putAway,it.thumbCtx||{hand:[210,330]})}</svg>`;}}
   return s;
@@ -1556,13 +1560,10 @@ function panelFor(l){
       return ask(levelAsk(l))+`<div class="grid acts">`+P.acts.map(a=>`<button class="actbtn" data-act="${a}" aria-label="${ACTS[a].name}"><span class="badge">${iconSvg(ACTS[a].ic,paint(CI('Blue'),'plain'),CI('Blue'))}</span>${ACTS[a].name}</button>`).join('')+'</div>'
         +`<div class="sub">Get dressed</div><div class="grid chips">`+CATS.filter(([c])=>pc[c]&&pc[c].length).map(([c])=>`<button class="chip" data-cat="${c}" aria-label="${catLabel(c)}">${catIcon(c)}${catLabel(c)}</button>`).join('')
         +`<button class="chip" data-face="1" aria-label="Makeup">${FACE_ICON.lips}Makeup</button><button class="chip" data-nails="1" aria-label="Nails">${iconSvg('polish',paint(CI('Pink'),'plain'))}Nails</button></div>`;}
-    case 'cat':{
-      const ids=placeCats(S.place)[l.cat]||[];
-      return ask(levelAsk(l))+`<div class="grid items">`+ids.map(id=>{const it=BY[id];const w=worn(it),o=S.outfit[it.slot];return `<button class="it${w?' on':''}" data-item="${id}" aria-label="${it.name}">${thumb(id,w?o.c:S.color,w?o.p:S.pat)}</button>`;}).join('')
-        +`<button class="it off" data-off="1" aria-label="Take it off">${XSVG}</button></div>`;}
-    case 'color':return ask(levelAsk(l))+colorsRow()+`<div class="sub">Patterns</div>`+patsRow()+doneBtn();
+    case 'cat':return ask(levelAsk(l))+`<div class="sub">Drag one onto her to put it on. Drag it off her to take it off.</div>`;
+    case 'color':return ask(levelAsk(l))+`<div class="sub">Drag a paint pot or a pattern onto her.</div>`+doneBtn();
     case 'face':return ask(levelAsk(l))+`<div class="grid chips">`+FACE_TOOLS.map(([k,n])=>`<button class="chip" data-ftool="${k}" aria-label="${n}">${FACE_ICON[k]}${n}</button>`).join('')+`<button class="chip off" data-fwipe="all" aria-label="Wash face">${XSVG}Wash</button></div>`;
-    case 'facetool':return ask(levelAsk(l))+(l.k==='stickers'?stickerRow():'')+colorsRow()+`<div class="grid acts"><button class="wide off" data-fwipe="1" aria-label="Wipe off">${XSVG}Wipe</button>${doneBtn()}</div>`;
+    case 'facetool':return ask(levelAsk(l))+(l.k==='stickers'?colorsRow():'')+`<div class="grid acts"><button class="wide off" data-fwipe="1" aria-label="Wipe off">${XSVG}Wipe</button>${doneBtn()}</div>`;
     case 'askSalon':return ask(levelAsk(l))+`<div class="grid acts"><button class="actbtn" data-yes="1" aria-label="Yes please"><span class="badge">${iconSvg('polish',paint(CI('Pink'),'sparkle'))}</span>Yes, please!</button><button class="actbtn" style="background:var(--card);color:var(--ink)" data-no="1" aria-label="No thank you"><span class="badge">${XSVG}</span>No, thank you</button></div>`;
     case 'salon':return ask('What should we do next?')+`<div class="grid chips">`+STATIONS.map(([k,n,ic])=>`<button class="chip${S.salon.done[k]?' chk':''}" data-station="${k}" aria-label="${n}">${iconSvg(ic,paint(CI('Purple'),'plain'),CI('Purple'))}${n}</button>`).join('')+`</div><button class="wide donebtn" data-salondone="1" aria-label="All done">${iconSvg('mirror')}All done!</button>`;
     case 'offer':return ask(levelAsk(l))+`<div class="sub">What do you say?</div><button class="wide please" data-please="1" aria-label="Yes please">${iconSvg('please')}Yes, please!</button><button class="wide" data-nothanks="1" aria-label="No thank you">No, thank you</button>`;
@@ -1621,13 +1622,15 @@ const stage=$('#stage');
 function renderStage(){
   const l=lvl();let vb='0 0 300 560',html='';
   if(['salon','offer','station'].includes(l.v)){vb='0 0 600 520';html=salonScene(l.v==='station'?l.k:null);}
-  else if(l.v==='face'||l.v==='facetool'){vb='48 4 204 204';POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character()}</g>`;}
+  else if(l.v==='face'||l.v==='facetool'){vb='48 4 204 204';POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character()}</g>`+(l.v==='facetool'?faceTray(l):'');}
   else if(l.v==='play'){vb=PLAYVB[l.k]||vb;html=playScene(l.k);}
   else if(l.v==='adv'){const st=advStep(l);if(st){const r=advStageHtml(l,st);vb=r.vb;html=r.html;}}
   else if(l.v==='prizes'||l.v==='claim'){html=jarScene();}
   else if(l.v==='cert'&&S.claims&&S.claims[l.i]){html=certScene(S.claims[l.i]);}
-  else if(l.v==='clean'&&S.clean){POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character({noHand:true,noGround:true})}</g>`+at(BOXP[0],BOXP[1]+20,90,ICONS.box())+S.clean.toys.filter(t=>!t.done).map(t=>at(t.x,t.y,44,ICONS[t.k](paint(t.c,'plain'),t.c),t.r)).join('');}
-  else{POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character()}</g>`;}
+  else if(l.v==='clean'&&S.clean){POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character({noHand:true,noGround:true})}</g>`+at(BOXP[0],BOXP[1]+20,90,ICONS.box())+S.clean.toys.map((t,i)=>t.done?'':`<g class="drg" data-drag="toy" data-val="${i}">`+at(t.x,t.y,44,ICONS[t.k](paint(t.c,'plain'),t.c),t.r)+'</g>').join('');}
+  else{POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character()}</g>`;
+    if(l.v==='cat'){const r=shelfSvg(l);vb=r.vb;html+=r.s;}
+    else if(l.v==='color'){const r=patShelf();vb=r.vb;html+=r.s+potsSides(30,270,96,88,23);}}
   stage.setAttribute('viewBox',vb);stage.innerHTML=html+'<g id="fx"></g><g id="hint" pointer-events="none">'+(l.v==='adv'?hintSvg():'')+'</g>';
 }
 function renderTop(){const [t,ic]=levelTitle();$('#titleTx').textContent=t;$('#titleIc').innerHTML=ic;$('#backBtn').disabled=NAV.length<=1;}
@@ -1853,7 +1856,7 @@ function wear(it){
     if(it.slot==='hat'&&S.outfit.hairAcc){delete S.outfit.hairAcc;swapNote='Hair bow off, so the hat fits!';}
     NAV.push({v:'color',slot:it.slot});
   });
-  if(!quizOpen)setTimeout(()=>{say((swapNote?swapNote+' ':'')+'Pick a color!');swapNote='';},900);
+  if(!quizOpen)setTimeout(()=>{say((swapNote?swapNote+' ':'')+'Drag a color onto it!');swapNote='';},900);
 }
 let swapNote='';
 function recolor(){
@@ -1877,6 +1880,139 @@ function polishNail(i){
   if(!quizOpen){const n=S.nails.filter(x=>x&&x.c!=null).length;if(!had&&n===10){confetti();say('Ten! All ten nails!');}else if(!had)say(cap(NUMW[n])+'!');else pop();}
 }
 
+// ---------- drag and drop on the picture ----------
+const SVGNS='http://www.w3.org/2000/svg';
+const onGirl=(x,y)=>x>58&&x<242&&y>6&&y<532;
+const SHELF_Y=566;
+const thumbAt=(id,ci,p,x,y,w)=>thumb(id,ci,p).replace('<svg ',`<svg x="${x}" y="${y}" width="${w}" height="${w}" `);
+const CHK=(x,y)=>`<circle cx="${x}" cy="${y}" r="10" fill="#36B65A" stroke="${INK}" stroke-width="2.5"/><path d="M${x-5},${y} l4,4 l7,-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+const shelfBase=h=>`<rect x="-800" y="${SHELF_Y}" width="1900" height="${h+600}" fill="#F3E3C8"/><rect x="-800" y="${SHELF_Y-4}" width="1900" height="12" fill="#C98D62" stroke="${INK}" stroke-width="3"/>`;
+function shelfSvg(l){
+  const ids=placeCats(S.place)[l.cat]||[],rows=Math.max(1,Math.ceil(ids.length/5));
+  let s=shelfBase(rows*62+20);
+  ids.forEach((id,i)=>{const r=Math.floor(i/5),inRow=Math.min(5,ids.length-r*5),c=i%5;
+    const cx=150+(c-(inRow-1)/2)*58,cy=SHELF_Y+40+r*62,it=BY[id];if(!it)return;const w=worn(it),o=S.outfit[it.slot];
+    s+=`<g class="drg" data-drag="item" data-val="${id}"><circle cx="${cx}" cy="${cy}" r="27" fill="#fff" stroke="${INK}" stroke-width="3"/>${thumbAt(id,w?o.c:S.color,w?o.p:S.pat,cx-23,cy-23,46)}${w?CHK(cx+20,cy-20):''}</g>`;});
+  return {vb:`0 0 300 ${SHELF_Y+rows*62+16}`,s};
+}
+function potSvg(i,cx,cy,r){const on=i===S.color;
+  return `<g class="drg" data-drag="pot" data-val="${i}">${on?`<circle cx="${cx}" cy="${cy}" r="${r+6}" fill="#fff" stroke="#FFB800" stroke-width="5"/>`:''}<path d="M${cx-r},${cy-r*.35} L${cx+r},${cy-r*.35} L${cx+r*.8},${cy+r} L${cx-r*.8},${cy+r}Z" fill="#fff" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><ellipse cx="${cx}" cy="${cy-r*.35}" rx="${r}" ry="${r*.42}" fill="${COLORS[i][1]}" stroke="${INK}" stroke-width="3"/><ellipse cx="${cx-r*.35}" cy="${cy-r*.45}" rx="${r*.25}" ry="${r*.12}" fill="#fff" opacity=".6"/></g>`;}
+const potsSides=(x0,x1,y0,dy,r)=>COLORS.map((c,i)=>potSvg(i,i<5?x0:x1,y0+(i%5)*dy,r)).join('');
+function patShelf(){
+  let s=shelfBase(80);
+  PATS.forEach(([k],i)=>{const cx=150+(i-3)*41,cy=SHELF_Y+36,on=k===S.pat;
+    s+=`<g class="drg" data-drag="pat" data-val="${k}"><rect x="${cx-18}" y="${cy-18}" width="36" height="36" rx="9" fill="${paint(S.color,k,12)}" stroke="${on?'#FF6DB0':INK}" stroke-width="${on?5:3}"/></g>`;});
+  return {vb:`0 0 300 ${SHELF_Y+70}`,s};
+}
+function faceTray(l){
+  if(l.k!=='stickers')return potsSides(68,232,30,40,14);
+  return STICKERS.map(([k],i)=>{const cx=i<4?70:230,cy=34+(i%4)*46,on=k===S.stamp;
+    return `<g class="drg" data-drag="stk" data-val="${k}"><circle cx="${cx}" cy="${cy}" r="19" fill="#fff" stroke="${on?'#FFB800':INK}" stroke-width="${on?4:2.5}"/>${at(cx,cy,28,ICONS[k](paint(S.color,'plain'),S.color))}</g>`;}).join('');
+}
+function grabSlot(x,y){
+  if(!onGirl(x,y)||y>SHELF_Y-8)return null;
+  let cands=null;
+  if(y<100||(dist(x,y,150,110)<96&&y<168&&dist(x,y,150,124)>=50))cands=['hats','hair','eyes'];
+  else if(dist(x,y,150,124)<50)cands=['eyes','hats','hair'];
+  else if(y<206&&Math.abs(x-150)<34)cands=['jewelry','tops','dresses','coats'];
+  else if(y<306&&x>96&&x<204)cands=['coats','tops','dresses'];
+  else if(y<445&&x>96&&x<204)cands=['bottoms','dresses','socks'];
+  else if(y<532&&x>90&&x<210)cands=['shoes','socks'];
+  else if(x>186&&y>100)cands=['extras'];
+  else if(x<114&&y>100)cands=['extras','coats','tops'];
+  if(!cands)return null;
+  const cur=lvl().cat;if(cur&&cands.includes(cur))cands=[cur,...cands.filter(c=>c!==cur)];
+  for(const c of cands)for(const sl of (CAT_SLOTS[c]||[]))if(S.outfit[sl]&&BY[S.outfit[sl].id])return sl;
+  return null;
+}
+function dropZone(k){
+  const l=lvl(),z='fill="#FFD02E" fill-opacity=".16" stroke="#FFB800" stroke-width="4" stroke-dasharray="12 9"';
+  if(k==='item'||k==='pat'||k==='prop'||(k==='pot'&&l.v==='color'))return `<ellipse cx="150" cy="268" rx="94" ry="262" ${z}/>`;
+  if(k==='pot'||k==='stk')return `<circle cx="150" cy="124" r="60" ${z}/>`;
+  if(k==='toy')return `<circle cx="${BOXP[0]}" cy="${BOXP[1]+20}" r="66" ${z}/>`;
+  if(k==='propoff')return `<rect x="194" y="270" width="104" height="270" rx="20" ${z}/>`;
+  return '';
+}
+let DRAG=null,dragEnd=0;
+function dragSpec(e){
+  const l=lvl(),el=e.target.closest&&e.target.closest('[data-drag]');
+  if(el)return {kind:el.dataset.drag,val:el.dataset.val,el};
+  const {x,y}=svgPt(e);
+  if(['place','cat','color'].includes(l.v)){const sl=grabSlot(x,y);if(sl)return {kind:'wornoff',slot:sl};}
+  if(l.v==='adv'&&!l.done){const st=advStep(l);if(st&&st.k==='prop'&&!st.prop&&st.off&&S.outfit[st.off]&&BY[S.outfit[st.off].id]&&onGirl(x,y))return {kind:'propoff',slot:st.off};}
+  return null;
+}
+function dragLayer(D){
+  const g=document.createElementNS(SVGNS,'g');g.id='dragl';g.setAttribute('pointer-events','none');
+  g.innerHTML=dropZone(D.kind)+'<g></g>';const inner=g.lastChild;
+  if(D.ghost)inner.innerHTML=D.ghost;else{const c=D.el.cloneNode(true);c.style.opacity='';c.removeAttribute('data-drag');inner.appendChild(c);}
+  stage.appendChild(g);D.g=g;D.inner=inner;
+}
+function dragStart(D){
+  D.on=true;
+  if(D.kind==='wornoff'||D.kind==='propoff'){const o=S.outfit[D.slot];D.saved=o;delete S.outfit[D.slot];renderStage();D.ghost=`<g transform="translate(0 -26)">${thumbAt(o.id,o.c,o.p,-44,-44,88)}</g>`;}
+  else D.el.style.opacity='.3';
+  dragLayer(D);tone(520,880,.12,.08);
+}
+function dragDraw(D){
+  if(!D.g||!D.g.isConnected)dragLayer(D);
+  D.inner.setAttribute('transform',D.ghost?`translate(${f1(D.x)} ${f1(D.y)})`:`translate(${f1(D.x)} ${f1(D.y)}) scale(1.2) translate(${f1(-D.sx)} ${f1(-D.sy)})`);
+}
+stage.addEventListener('pointerdown',e=>{
+  if(quizOpen||DRAG||(e.button!=null&&e.button>0))return;
+  const sp=dragSpec(e);if(!sp)return;
+  const p=svgPt(e);DRAG=Object.assign(sp,{id:e.pointerId,cx:e.clientX,cy:e.clientY,sx:p.x,sy:p.y,x:p.x,y:p.y,on:false});
+});
+stage.addEventListener('pointermove',e=>{
+  const D=DRAG;if(!D||e.pointerId!==D.id)return;
+  if(!D.on){if(Math.hypot(e.clientX-D.cx,e.clientY-D.cy)<9)return;try{stage.setPointerCapture(e.pointerId);}catch(_){}dragStart(D);}
+  e.preventDefault();const p=svgPt(e);D.x=p.x;D.y=p.y;dragDraw(D);
+});
+function dragFinish(e,cancel){
+  const D=DRAG;if(!D||e.pointerId!==D.id)return;DRAG=null;
+  if(!D.on)return;
+  dragEnd=performance.now();
+  if(D.g)D.g.remove();if(D.el)D.el.style.opacity='';
+  if(D.saved)S.outfit[D.slot]=D.saved;
+  let ok=false;
+  if(!cancel&&!quizOpen){const p=svgPt(e);try{ok=dropAt(D,p.x,p.y);}catch(err){console.error(err);}}
+  if(!ok){if(D.saved)renderStage();tone(440,300,.14,.07);}
+}
+stage.addEventListener('pointerup',e=>dragFinish(e,false));
+stage.addEventListener('pointercancel',e=>dragFinish(e,true));
+function dropAt(D,x,y){
+  const l=lvl(),v=D.val;
+  switch(D.kind){
+    case 'item':if(!onGirl(x,y)||!BY[v])return false;pop();wear(BY[v]);return true;
+    case 'pot':
+      if(l.v==='color'&&onGirl(x,y)){S.color=+v;pop();say(COLORS[S.color][0]+'!');recolor();return true;}
+      if(l.v==='facetool'&&dist(x,y,150,124)<66){S.color=+v;makeup(l.k);return true;}
+      return false;
+    case 'pat':if(l.v!=='color'||!onGirl(x,y))return false;S.pat=v;pop();say(PATN[v]+'!');recolor();return true;
+    case 'stk':if(dist(x,y,150,124)>68)return false;S.stamp=v;stampAt('faceStamps',x,y,24);return true;
+    case 'toy':{const C=S.clean;if(!C||dist(x,y,BOXP[0],BOXP[1]+20)>88)return false;const t=C.toys[+v];if(!t||t.done)return false;cleanToy(t,x,y);return true;}
+    case 'prop':if(!onGirl(x,y))return false;propDo();return true;
+    case 'wornoff':{if(onGirl(x,y)&&dist(x,y,D.sx,D.sy)<150)return false;const sl=D.slot,o=S.outfit[sl],nm=o&&BY[o.id]?BY[o.id].name:'';
+      if(l.v==='color'&&l.slot===sl)NAV.pop();
+      commit(()=>{delete S.outfit[sl];});spawnUp('spark',x,y,6,{spread:40,speed:40,life:.7});pop();say((nm?nm+' off!':'Off!'));return true;}
+    case 'propoff':if(x<180&&dist(x,y,D.sx,D.sy)<150)return false;propDo();return true;
+    case 'stool':stationTapAt(x,y);return true;
+  }
+  return false;
+}
+function tapDrag(d,x,y){
+  const l=lvl(),v=d.val;
+  switch(d.drag){
+    case 'item':if(BY[v]){pop();wear(BY[v]);}return;
+    case 'pot':S.color=+v;pop();say(COLORS[S.color][0]);if(l.v==='color')recolor();else if(l.v==='facetool')makeup(l.k);else renderStage();return;
+    case 'pat':S.pat=v;pop();say(PATN[v]);if(l.v==='color')recolor();else renderStage();return;
+    case 'stk':S.stamp=v;pop();say((STICKERS.find(s=>s[0]===v)||['',''])[1]+'! Drag it onto her face.');renderStage();return;
+    case 'toy':{const t=S.clean&&S.clean.toys[+v];if(t&&!t.done)cleanToy(t);return;}
+    case 'prop':propDo();return;
+    case 'stool':pop();say(HOWTO[l.k]||'');return;
+  }
+}
+
 // ---------- taps on the picture ----------
 function svgPt(e){const pt=stage.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const m=stage.getScreenCTM();return m?pt.matrixTransform(m.inverse()):{x:-999,y:-999};}
 const dist=(a,b,x,y)=>Math.hypot(a-x,b-y);
@@ -1896,6 +2032,8 @@ function regionCat(x,y){
 }
 stage.addEventListener('click',e=>{
   if(quizOpen)return;const {x,y}=svgPt(e);const l=lvl();
+  if(performance.now()-dragEnd<250)return;
+  const dg=e.target.closest&&e.target.closest('[data-drag]');if(dg){tapDrag(dg.dataset,x,y);return;}
   if(['place','cat','color'].includes(l.v)){
     const c=regionCat(x,y);if(!c)return;
     if(c==='NAILS'){go({v:'askSalon'});return;}
@@ -1916,7 +2054,10 @@ stage.addEventListener('click',e=>{
     if(st.k==='manner'){mannerDo();return;}
     return;}
   if(l.v==='clean'){cleanTap(x,y);return;}
-  if(l.v==='station'){
+  if(l.v==='station'){stationTapAt(x,y);return;}
+});
+
+function stationTapAt(x,y){const l=lvl();if(l.v!=='station')return;
     const [hx,hy]=toHand(x,y);
     if(l.k==='soak'){const b=S.salon.bub.find(b=>Math.hypot(b.x-hx,b.y-hy)<b.r+14);if(b){S.salon.bub=S.salon.bub.filter(q=>q!==b);S.salon.pops++;FX.push({type:'popring',x,y,r:b.r*HS,life:.35,t:0});pop(true);say('Pop! '+cap(NUMW[Math.min(S.salon.pops,10)])+'!');
         if(!S.salon.bub.length){S.salon.msg='Squeaky clean!';say('Squeaky clean! Now say thank you to Nina.');}renderStage();}return;}
@@ -1927,8 +2068,7 @@ stage.addEventListener('click',e=>{
     if(l.k==='lotion'){if(y<200)return;FX.push({type:'lotion',x,y,life:1.6,t:0});spawnUp('heart',x,y,2,{spread:30,speed:50,life:1.4});S.salon.lotion++;pop();
       if(S.salon.lotion===5){S.salon.msg='So soft!';say('Ahh, so soft! Now say thank you to Nina.');renderStage();}else say(pick(['Ahh!','So soft!','Rub rub!']));return;}
     if(l.k==='tattoo'){if(y<200)return;stampAt('handStamps',hx,hy,54);return;}
-  }
-});
+}
 
 // ---------- buttons ----------
 $('#rows').addEventListener('click',e=>{
@@ -2094,8 +2234,9 @@ function renderVList(){
   const micIc='<svg viewBox="0 0 40 40"><rect x="14" y="5" width="12" height="20" rx="6" fill="currentColor"/><path d="M9,19 Q9,31 20,31 Q31,31 31,19 M20,31 V37" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
   const stopIc='<svg viewBox="0 0 40 40"><rect x="10" y="10" width="20" height="20" rx="4" fill="currentColor"/></svg>';
   const playIc='<svg viewBox="0 0 40 40"><path d="M13,8 L32,20 L13,32Z" fill="currentColor"/></svg>';
+  const redoIc='<svg viewBox="0 0 40 40"><path d="M30,14 A12,12 0 1 0 32,24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M24,6 L32,14 L22,17Z" fill="currentColor"/></svg>';
   $('#vList').innerHTML=VOICE_GROUPS.map(([g,list])=>`<div class="vgroup"><h3>${g}</h3>`+list.map(t=>{const k=norm(t),has=CLIPS.has(k),live=recKey===k;
-    return `<div class="vrow"><button class="rec${live?' live':''}" data-rk="${k}" aria-label="${live?'Stop recording':'Record'} ${t.replace(/"/g,'&quot;')}">${live?stopIc:micIc}</button><span class="lab"><b>${t.replace(/</g,'&lt;')}</b></span>`
+    return `<div class="vrow"><button class="rec${live?' live':''}" data-rk="${k}" aria-label="${live?'Stop recording':has?'Record again':'Record'} ${t.replace(/"/g,'&quot;')}">${live?stopIc:has?redoIc:micIc}</button><span class="lab"><b>${t.replace(/</g,'&lt;')}</b></span>`
       +`<button class="${has?'done':''}" data-pk="${k}" ${has?'':'disabled'} aria-label="Play">${playIc}</button><button data-dk="${k}" ${has?'':'disabled'} aria-label="Delete">${XSVG}</button></div>`;}).join('')+'</div>').join('');
 }
 async function startRecording(k){
@@ -2105,12 +2246,12 @@ async function startRecording(k){
   catch(e){vNote("The microphone isn't available here. Open the game from its own link (for example on GitHub Pages), and allow the microphone when the browser asks.");return;}
   stopSpeech();
   const chunks=[];let r;try{r=new MediaRecorder(mstream);}catch(e){vNote("This browser can't record audio.");return;}
-  mrec=r;recKey=k;vNote('Recording… tap the green button when you finish.');
+  mrec=r;recKey=k;vNote(CLIPS.has(k)?'Recording again… your old one stays until this one saves. Tap the green button when you finish.':'Recording… tap the green button when you finish.');
   r.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
   r.onstop=async()=>{clearTimeout(recTimer);const blob=new Blob(chunks,{type:r.mimeType||'audio/webm'});mrec=null;recKey=null;
     if(blob.size<800){vNote("That one didn't record. Try again a little closer to the microphone.");renderVList();return;}
     if(CLIPS.has(k))URL.revokeObjectURL(CLIPS.get(k));const url=URL.createObjectURL(blob);CLIPS.set(k,url);
-    const ok=await dbDo(st=>st.put(blob,k));vNote(ok?'Saved. Here it is:':"Saved for now. This browser won't keep it after you close the game.");
+    const ok=await dbDo(st=>st.put(blob,k));vNote(ok?"Saved. Here it is! Don't like it? Tap the red redo button to record it again.":"Saved for now. This browser won't keep it after you close the game.");
     renderVList();try{const a=new Audio(url);a.play().catch(()=>{});}catch(e){}};
   r.start();recTimer=setTimeout(stopRecording,6000);renderVList();
 }

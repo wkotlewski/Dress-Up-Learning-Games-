@@ -1,6 +1,6 @@
 # Dress-Up Learning Games
 
-Tap-to-play learning games for preschoolers. The buttons are big and chunky, and the game says every color, shape, number and letter out loud.
+Touch-and-drag learning games for preschoolers. Things she can change sit right in the picture for her to drag, the buttons are big and chunky, and the game says every color, shape, number and letter out loud.
 
 **▶ Play Zahra's Dress-Up: https://wkotlewski.github.io/Dress-Up-Learning-Games-/**
 
@@ -14,10 +14,23 @@ Each screen shows only the next choice, and the game reads it out loud. A big **
 
 1. **Where are we going today?** She picks a place.
 2. **In that place**, she gets dressed in a matching outfit. She can go on that place's **adventure**, or choose what to change: tops, bottoms, shoes, hats, and so on. Only the clothes that fit that place show up.
-3. **Pick a top** shows only the tops. She taps one and it goes on.
-4. **Pick a color!** shows colors and patterns for that one thing. Then she taps **Done**.
+3. **Pick a top** puts the tops on a shelf under the girl. She drags one onto the girl to put it on.
+4. **Drag a color onto her!** puts paint pots on both sides of the girl and patterns on the shelf. She drags a pot or a pattern onto the girl. Then she taps **Done**.
 
 She can also tap the girl herself: her head for hats, her chest for tops, her legs for bottoms, her feet for shoes, her face for makeup, or her hands to go to the nail salon.
+
+### Drag it on, drag it off
+
+She changes things by moving them in the picture, with very few buttons:
+
+- **Clothes:** drag from the shelf onto the girl to put it on. To take something off, grab it on the girl (her hat, her top, her shoes) and drag it away.
+- **Colors and patterns:** drag a paint pot or a pattern onto her.
+- **Makeup:** paint pots sit beside her face. She drags one onto her face for lips, cheeks or eye shadow, or drags a tattoo onto her face right where she wants it.
+- **Clean-up:** she drags each toy into the toy box.
+- **Adventures:** she drags the boots, helmet, backpack or slippers onto the girl, and drags them off her at the end.
+- **Nail salon:** she drags the polish bottle or the nail file onto a nail, and the lotion onto her hands.
+
+While she's dragging, a dashed yellow outline shows where to drop it. If she lets go somewhere else, it goes back. Tapping still works everywhere too.
 
 ### Places and adventures
 
@@ -72,11 +85,11 @@ When she taps **Nails**, the game asks if she wants to go to the nail salon. The
 
 - **Questions** pop up before something new goes on and between adventure scenes: "Which one is pink?", "How many stars?", "Find the number 7!", "Find the letter B!", "What letter does Moon start with?", "Red, blue, red, blue… what comes next?", "Which one is big?", "Which one has more?", "Which one is the heart?", "Z, A, H… what comes next?" She can tap the answer or press **Say it!** and say it out loud. A wrong answer tells her what she picked and lets her try again.
 - **Please and thank you:** at the salon, Nina offers each step and Zahra answers **"Yes, please!"** or **"No, thank you."** She finishes each step with **"Thank you, Nina!"** and Nina says "You're welcome!"
-- **Clean-up time:** after she plays somewhere, leaving brings up the toys on the floor. She taps each one to put it away in the toy box, counting as she goes, "so we don't lose them."
+- **Clean-up time:** after she plays somewhere, leaving brings up the toys on the floor. She drags each one into the toy box (or taps it), counting as she goes, "so we don't lose them."
 
 ### Your voice
 
-In the grown-ups corner, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. Record as many or as few as you like.
+In the grown-ups corner, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. To redo one you don't like, tap its red redo button and record it again. Your old recording stays until the new one saves. Record as many or as few as you like.
 
 Whenever the game says a word or phrase you recorded, it plays your voice, even in the middle of a sentence. "Which one is pink?" plays your "Which one is" and your "Pink." The built-in voice fills in everything else. Recordings stay in that browser on that device, so record on the iPad she plays on.
 
