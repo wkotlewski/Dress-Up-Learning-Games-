@@ -89,7 +89,7 @@ When she taps **Nails**, the game asks if she wants to go to the nail salon. The
 
 ### Your voice
 
-In the grown-ups corner, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. To redo one you don't like, tap its red redo button and record it again. Your old recording stays until the new one saves. Record as many or as few as you like.
+In the grown-ups corner, **Record my voice** lists about 60 short phrases: her name, cheers ("Yes!", "Good job!"), the 10 colors, numbers one to ten, the letters Z, A, H, R, shapes, common questions, please and thank-you phrases, and bedtime lines like "Good night, Zahra" and "I love you." Tap the red button, say it, and tap again. Record as many or as few as you like.
 
 Whenever the game says a word or phrase you recorded, it plays your voice, even in the middle of a sentence. "Which one is pink?" plays your "Which one is" and your "Pink." The built-in voice fills in everything else. Recordings stay in that browser on that device, so record on the iPad she plays on.
 

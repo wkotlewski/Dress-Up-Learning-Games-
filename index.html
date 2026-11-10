@@ -2234,9 +2234,8 @@ function renderVList(){
   const micIc='<svg viewBox="0 0 40 40"><rect x="14" y="5" width="12" height="20" rx="6" fill="currentColor"/><path d="M9,19 Q9,31 20,31 Q31,31 31,19 M20,31 V37" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>';
   const stopIc='<svg viewBox="0 0 40 40"><rect x="10" y="10" width="20" height="20" rx="4" fill="currentColor"/></svg>';
   const playIc='<svg viewBox="0 0 40 40"><path d="M13,8 L32,20 L13,32Z" fill="currentColor"/></svg>';
-  const redoIc='<svg viewBox="0 0 40 40"><path d="M30,14 A12,12 0 1 0 32,24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M24,6 L32,14 L22,17Z" fill="currentColor"/></svg>';
   $('#vList').innerHTML=VOICE_GROUPS.map(([g,list])=>`<div class="vgroup"><h3>${g}</h3>`+list.map(t=>{const k=norm(t),has=CLIPS.has(k),live=recKey===k;
-    return `<div class="vrow"><button class="rec${live?' live':''}" data-rk="${k}" aria-label="${live?'Stop recording':has?'Record again':'Record'} ${t.replace(/"/g,'&quot;')}">${live?stopIc:has?redoIc:micIc}</button><span class="lab"><b>${t.replace(/</g,'&lt;')}</b></span>`
+    return `<div class="vrow"><button class="rec${live?' live':''}" data-rk="${k}" aria-label="${live?'Stop recording':'Record'} ${t.replace(/"/g,'&quot;')}">${live?stopIc:micIc}</button><span class="lab"><b>${t.replace(/</g,'&lt;')}</b></span>`
       +`<button class="${has?'done':''}" data-pk="${k}" ${has?'':'disabled'} aria-label="Play">${playIc}</button><button data-dk="${k}" ${has?'':'disabled'} aria-label="Delete">${XSVG}</button></div>`;}).join('')+'</div>').join('');
 }
 async function startRecording(k){
@@ -2246,12 +2245,12 @@ async function startRecording(k){
   catch(e){vNote("The microphone isn't available here. Open the game from its own link (for example on GitHub Pages), and allow the microphone when the browser asks.");return;}
   stopSpeech();
   const chunks=[];let r;try{r=new MediaRecorder(mstream);}catch(e){vNote("This browser can't record audio.");return;}
-  mrec=r;recKey=k;vNote(CLIPS.has(k)?'Recording again… your old one stays until this one saves. Tap the green button when you finish.':'Recording… tap the green button when you finish.');
+  mrec=r;recKey=k;vNote('Recording… tap the green button when you finish.');
   r.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
   r.onstop=async()=>{clearTimeout(recTimer);const blob=new Blob(chunks,{type:r.mimeType||'audio/webm'});mrec=null;recKey=null;
     if(blob.size<800){vNote("That one didn't record. Try again a little closer to the microphone.");renderVList();return;}
     if(CLIPS.has(k))URL.revokeObjectURL(CLIPS.get(k));const url=URL.createObjectURL(blob);CLIPS.set(k,url);
-    const ok=await dbDo(st=>st.put(blob,k));vNote(ok?"Saved. Here it is! Don't like it? Tap the red redo button to record it again.":"Saved for now. This browser won't keep it after you close the game.");
+    const ok=await dbDo(st=>st.put(blob,k));vNote(ok?'Saved. Here it is:':"Saved for now. This browser won't keep it after you close the game.");
     renderVList();try{const a=new Audio(url);a.play().catch(()=>{});}catch(e){}};
   r.start();recTimer=setTimeout(stopRecording,6000);renderVList();
 }
