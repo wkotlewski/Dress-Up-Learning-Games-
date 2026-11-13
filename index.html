@@ -49,7 +49,6 @@ button[disabled]{opacity:.4}
 #stage{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
 .drg{cursor:grab}
 .panel{position:relative;flex:0 0 auto;max-height:56%;overflow-y:auto;overflow-x:hidden;padding:2px 2px 8px}
-.panel.quizzing{overflow:hidden;min-height:310px}
 .rows{display:flex;flex-direction:column;gap:8px}
 .ask{font-size:22px;font-weight:800;line-height:1.1;text-align:center;text-wrap:balance;padding:2px 4px}
 .sub{font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.65;text-align:center;margin-top:2px}
@@ -88,23 +87,27 @@ button[disabled]{opacity:.4}
 .page .nm b{color:var(--pop)}
 
 /* questions */
-.quiz{position:absolute;inset:0;z-index:5;background:var(--card);border:4px solid var(--ink);border-radius:24px;box-shadow:0 5px 0 var(--ink);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:10px 12px;box-sizing:border-box}
+.quiz{position:fixed;inset:0;z-index:25;background:#FFF3B0;background-image:radial-gradient(circle,#FFE27A 0 9px,transparent 10px);background-size:64px 64px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;box-sizing:border-box;overflow-y:auto;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:qin .35s ease-out}
+@keyframes qin{from{transform:scale(.94);opacity:0}}
+.qbadge{display:flex;align-items:center;gap:10px;font-size:24px;font-weight:800;background:var(--pop);color:#fff;border:3px solid var(--ink);border-radius:999px;padding:6px 20px 6px 6px;box-shadow:0 4px 0 var(--ink)}
+.qbadge b{width:46px;height:46px;border-radius:50%;background:#fff;color:var(--pop);display:grid;place-items:center;font-size:34px;line-height:1;border:3px solid var(--ink)}
 .qrow{display:flex;align-items:center;gap:10px;max-width:100%}
-.qprompt{font-size:24px;font-weight:800;text-align:center;text-wrap:balance;line-height:1.1}
+.qprompt{font-size:30px;font-weight:800;text-align:center;text-wrap:balance;line-height:1.1}
 .qhear{flex:0 0 46px;height:46px;border-radius:50%}
 .qhear svg{width:24px;height:24px}
 .qvis{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;min-height:70px;max-width:100%}
-.qvis svg.thing{width:96px;height:96px}
+.qvis svg.thing{width:130px;height:130px}
 .qvis svg.cnt{width:42px;height:42px}
 .tile{width:44px;height:52px;border:3px solid var(--ink);border-radius:12px;display:grid;place-items:center;font-size:32px;font-weight:800;background:#fff}
 .tile.q{background:var(--pick)}
 .tile.e{border-style:dashed;color:transparent;background:transparent}
-.qchoices{display:flex;gap:12px;justify-content:center}
-.qchoices button{width:90px;height:90px;border-radius:24px;font-size:52px;font-weight:800;line-height:1}
-.qchoices button svg{width:62px;height:62px}
+.qchoices{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:560px}
+.qchoices button{width:118px;height:118px;border-radius:28px;font-size:62px;font-weight:800;line-height:1}
+.qchoices button svg{width:80px;height:80px}
 .qchoices button.swc{border-radius:50%}
-.qchoices button.word{font-size:22px;width:100px}
+.qchoices button.word{font-size:24px;width:130px}
 .qchoices button svg{margin:auto}
 .qchoices button span{margin:auto}
 .qchoices button.no{animation:shake .4s;opacity:.35}
@@ -116,6 +119,29 @@ button[disabled]{opacity:.4}
 @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 @keyframes pulse{50%{transform:scale(1.06)}}
 .bounce{animation:pulse 1.1s ease-in-out infinite}
+/* play view: the picture gets the screen; the words sit in a slim strip and the few buttons float on the picture */
+body.immersive .main{flex-direction:column}
+body.immersive .panel{flex:0 0 auto;order:-1;max-height:34%;padding:0 2px}
+body.immersive .panel .sub{display:none}
+body.immersive .ask{font-size:20px}
+body.immersive .rows{gap:6px}
+body.immersive .page{min-height:0;padding:4px 12px;gap:8px}
+body.immersive .page .big{font-size:40px}
+body.immersive .page svg{width:32px;height:32px}
+body.immersive .page .nm{font-size:24px}
+.fabs{position:absolute;top:8px;right:8px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:10px;max-width:60%}
+.fabs:empty{display:none}
+.fabs .wide{width:auto;height:58px;padding:0 18px 0 12px;border-radius:999px;font-size:18px;gap:6px}
+.fabs .wide svg{width:30px;height:30px}
+/* gentle hints: things she can drag give a little wiggle now and then; the "do this next" glow only shows when she seems stuck */
+@keyframes wig{0%,86%,100%{transform:none}90%{transform:rotate(-7deg)}95%{transform:rotate(7deg)}}
+.drg{transform-box:fill-box;transform-origin:center;animation:wig 4.5s ease-in-out infinite}
+.drg:nth-of-type(2n){animation-delay:-1.5s}.drg:nth-of-type(3n){animation-delay:-3s}
+.drg[data-drag="prop"],#dragl .drg{animation:none}
+body:not(.idle) .bounce{animation:none}
+body:not(.idle) .pad .glow{animation:none}
+body:not(.idle) .pad button.glow:not(.actb){background:var(--card)}
+body:not(.idle) .pad .actb.glow{background:var(--pop)}
 
 /* grown-up settings */
 .sheet{position:fixed;inset:0;z-index:30;background:rgba(59,31,74,.45);display:grid;place-items:center;padding:16px}
@@ -202,17 +228,17 @@ button[disabled]{opacity:.4}
 
 @media (min-aspect-ratio:5/4) and (min-width:640px){
   .main{flex-direction:row}
-  .panel{flex:0 0 min(460px,46%);max-height:none}
-  .panel.quizzing{min-height:0}
+  .panel{flex:0 0 min(400px,40%);max-height:none}
   .card2{height:112px;font-size:16px}.badge{width:66px;height:66px}.badge svg{width:54px;height:54px}
   .chips{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}.chip{height:90px;font-size:16px}.chip svg{width:54px;height:54px}
   .items{grid-template-columns:repeat(auto-fill,minmax(100px,1fr))}.it{height:100px}.it svg{width:80px;height:80px}
   .sw{height:58px}.pt{height:58px}.pt svg{width:44px;height:44px}
-  .qchoices button{width:110px;height:110px}
+  .qchoices button{width:150px;height:150px}.qchoices button svg{width:100px;height:100px}.qprompt{font-size:36px}
 }
 @media (prefers-reduced-motion:reduce){
   button{transition:none}
   .qchoices button.hint,.qmic.listening,.bounce{animation:none;outline:5px solid var(--pop)}
+  .drg,.quiz{animation:none}
   .confetti i{animation-duration:.01s}
 }
 </style>
@@ -232,10 +258,11 @@ button[disabled]{opacity:.4}
 
   <div class="main">
     <div class="stagebox"><button class="starchip" id="starChip" aria-label="My stars: open the prizes"><svg viewBox="-0.6 -0.6 1.2 1.2" aria-hidden="true"><path d="M0,-0.46 L0.12,-0.13 L0.48,-0.12 L0.2,0.1 L0.3,0.45 L0,0.24 L-0.3,0.45 L-0.2,0.1 L-0.48,-0.12 L-0.12,-0.13Z" fill="#FFC93C" stroke="#3B1F4A" stroke-width="0.07" stroke-linejoin="round"/></svg><span id="starVal">0</span></button>
-      <div class="pad" id="pad" hidden><div class="arrows" id="padArrows"></div><div class="arrows" id="padActs"></div></div><svg id="stage" viewBox="0 0 300 560" preserveAspectRatio="xMidYMid meet" aria-label="Zahra's girl"></svg></div>
+      <div class="fabs" id="fabs"></div><div class="pad" id="pad" hidden><div class="arrows" id="padArrows"></div><div class="arrows" id="padActs"></div></div><svg id="stage" viewBox="0 0 300 560" preserveAspectRatio="xMidYMid meet" aria-label="Zahra's girl"></svg></div>
     <div class="panel" id="panel">
       <div class="rows" id="rows"></div>
-      <div class="quiz" id="quiz" hidden>
+      <div class="quiz" id="quiz" hidden role="dialog" aria-label="Question time">
+        <div class="qbadge"><b>?</b>Question time!</div>
         <div class="qrow"><button class="qhear" id="qHear" aria-label="Hear the question again"><svg viewBox="0 0 40 40"><path d="M8,16 H14 L22,9 V31 L14,24 H8Z" fill="currentColor"/><path d="M27,14 Q31,20 27,26 M31,10 Q38,20 31,30" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button><div class="qprompt" id="qPrompt"></div></div>
         <div class="qvis" id="qVis"></div>
         <div class="qchoices" id="qChoices"></div>
@@ -248,7 +275,7 @@ button[disabled]{opacity:.4}
 <div class="sheet" id="sheet" hidden>
   <div class="card corner" role="dialog" aria-labelledby="sheetH">
     <div class="chead"><h2 id="sheetH">Grown-ups corner</h2><button id="closeSheet">Close</button></div>
-    <div class="ver">Game version: Nov 9, 2026 (adventures, star prizes, grown-ups corner)</div>
+    <div class="ver">Game version: Nov 13, 2026 (full-screen play, question time)</div>
 
     <div class="sec"><h3>How she's doing</h3><div id="trackSet" style="display:flex;flex-direction:column;gap:8px"></div></div>
 
@@ -1313,7 +1340,7 @@ function curAct(){const l=lvl();if(l.v==='play')return l.k;if(l.v==='adv'){const
 let BB=null,SLIDE=null,BUS=null,CHARC='';
 function startAdventure(){NAV.push({v:'adv',place:S.place,i:0});enterStep();renderAll();}
 function enterStep(){
-  const l=lvl(),st=advStep(l);S.walk=null;S.play=null;FX=[];ANIM=null;BALL=null;KITE=null;BB=null;SLIDE=null;BUS=null;S.manner=null;S.cls=null;
+  const l=lvl(),st=advStep(l);if(l)l.ready=false;S.walk=null;S.play=null;FX=[];ANIM=null;BALL=null;KITE=null;BB=null;SLIDE=null;BUS=null;S.manner=null;S.cls=null;
   if(!st)return;S.played=true;
   if(st.k==='act'){S.play={k:st.a,n:0,page:0,pieces:0,rainbow:false,dark:false};
     if(st.a==='kick')BALL={x:162,y:500,s:1,state:'rest'};
@@ -1346,8 +1373,12 @@ function finishAdventure(l){
 function advCheck(){
   const l=lvl();if(l.v!=='adv')return;const st=advStep(l);if(!st||st.k!=='act'||!S.play)return;
   const P=S.play,v=st.a==='castle'?P.pieces:st.a==='sleep'?(P.dark?1:0):P.n;
+  if(v>=st.goal){
+    if(st.a==='sleep'){renderPanel();stepDone(2600);return;}
+    if(!l.ready){l.ready=true;spawnUp('spark',150,250,12,{spread:220,speed:40,life:1});tone(660,1320,.35,.12);
+      setTimeout(()=>{if(lvl()===l&&l.ready)say('You did it! Keep playing, or tap Next when you are ready.');},st.a==='castle'?1600:700);}
+  }
   renderPanel();
-  if(v>=st.goal)stepDone(st.a==='sleep'?2600:st.a==='castle'?2400:1500);
 }
 function propDo(){
   const l=lvl(),st=advStep(l);if(!st||l.done)return;
@@ -1595,6 +1626,7 @@ function panelFor(l){
       if(st.k==='class')h+=`<div class="page"><span class="big">${S.cls?S.cls.n:0}</span><span class="nm">of ${st.goal}</span></div>`;
       if(st.k==='manner')h+=`<div class="sub">What do you say? Tap the speech bubble</div>`;
       if(st.k==='prop'||st.k==='bus'||st.k==='go')h+=`<div class="sub">Tap it in the picture, or press the pink button</div>`;
+      if(st.k==='act'&&l.ready)h+=`<button class="wide please" data-nextstep="1" aria-label="Next"><svg viewBox="0 0 44 44" aria-hidden="true"><path d="M16,8 L32,22 L16,36Z" fill="currentColor"/></svg>Next</button>`;
       if(st.k==='act'){const A2=ACTS[st.a],P=S.play||{},v=st.a==='castle'?P.pieces:st.a==='sleep'?(P.dark?1:0):P.n;
         if(st.a==='read'){const PG=PAGES[P.page||0];h+=`<div class="page">`+(PG.n?`<span class="big">${PG.n}</span>`+Array.from({length:PG.n},()=>iconSvg(PG.ic,paint(CI(PG.c),'plain'),CI(PG.c))).join(''):PG.L!=null?`<span class="big" style="color:var(--pop)">${NAME[PG.L]}</span><span class="nm">${NAME.map((L,i)=>i===PG.L?`<b>${L}</b>`:L).join('')}</span>`:`<span class="nm">The End</span>`)+'</div>';}
         else h+=`<div class="page"><span class="big">${Math.min(v||0,st.goal)}</span><span class="nm">of ${st.goal}</span></div>`;}
@@ -1631,10 +1663,26 @@ function renderStage(){
   else{POSE=DEFPOSE;html=SCENES[S.bg]('dress')+`<g id="char">${character()}</g>`;
     if(l.v==='cat'){const r=shelfSvg(l);vb=r.vb;html+=r.s;}
     else if(l.v==='color'){const r=patShelf();vb=r.vb;html+=r.s+potsSides(30,270,96,88,23);}}
-  stage.setAttribute('viewBox',vb);stage.innerHTML=html+'<g id="fx"></g><g id="hint" pointer-events="none">'+(l.v==='adv'?hintSvg():'')+'</g>';
+  BASEVB=vb.split(' ').map(Number);fitVB();stage.innerHTML=html+'<g id="fx"></g><g id="hint" pointer-events="none">'+(l.v==='adv'?hintSvg():'')+'</g>';
 }
 function renderTop(){const [t,ic]=levelTitle();$('#titleTx').textContent=t;$('#titleIc').innerHTML=ic;$('#backBtn').disabled=NAV.length<=1;}
-function renderPanel(){$('#rows').innerHTML=panelFor(lvl());$('#panel').scrollTop=0;renderPad();updateHint();}
+const IMM=['cat','color','facetool','play','adv','clean'];
+function renderPanel(){const l=lvl(),imm=IMM.includes(l.v);document.body.classList.toggle('immersive',imm);
+  $('#rows').innerHTML=panelFor(l);const fb=$('#fabs');fb.innerHTML='';
+  if(imm){document.querySelectorAll('#rows button.wide').forEach(b=>fb.appendChild(b));document.querySelectorAll('#rows .acts').forEach(g=>{if(!g.children.length)g.remove();});}
+  $('#panel').scrollTop=0;renderPad();updateHint();fitVB();}
+// The picture fills its box: the scene widens (or grows taller) to match the screen, so nothing is wasted on a tablet.
+let BASEVB=[0,0,300,560];
+function fitVB(){const r=stage.getBoundingClientRect();let [x,y,w,h]=BASEVB;
+  if(r.width>20&&r.height>20){const A=r.width/r.height;
+    if(A>w/h){const nw=Math.min(h*A,w*3.2);x-=(nw-w)/2;w=nw;}else{const nh=Math.min(w/A,h*1.35);y-=(nh-h)/2;h=nh;}}
+  stage.setAttribute('viewBox',[x,y,w,h].map(v=>Math.round(v*10)/10).join(' '));}
+if(window.ResizeObserver)new ResizeObserver(()=>fitVB()).observe(document.querySelector('.stagebox'));else addEventListener('resize',fitVB);
+// Hints wait: the glow on "what to do next" only comes back after she's been still for a few seconds.
+let lastPoke=performance.now();
+const poke=()=>{lastPoke=performance.now();if(document.body.classList.contains('idle')){document.body.classList.remove('idle');updateHint();}};
+['pointerdown','keydown'].forEach(t=>document.addEventListener(t,poke,true));
+setInterval(()=>{const idle=performance.now()-lastPoke>6000;if(idle!==document.body.classList.contains('idle')){document.body.classList.toggle('idle',idle);updateHint();}},500);
 const BTNIC={Walk:'walk',Run:'walk',Pedal:'bike',Drive:'bus'};
 function padSpec(){
   const l=lvl(),st=l.v==='adv'&&advStep(l);if(!st)return null;
@@ -1702,7 +1750,7 @@ function goIn(){const l=lvl();if(l.going)return;l.going=performance.now();pop(tr
 })();
 // a glowing ring on the thing to tap next
 function hintAt(){
-  const l=lvl(),st=l.v==='adv'&&advStep(l);if(!st||l.done)return null;
+  const l=lvl(),st=l.v==='adv'&&advStep(l);if(!st||l.done||l.ready)return null;
   if(st.k==='prop')return st.prop?[246,458]:({shoes:[150,492],back:[150,250],hat:[150,46]}[st.off]||[150,300]);
   if(st.k==='walk'||st.k==='ride'){const W=S.walk;if(W&&W.pending)return ({puddle:[150,506],shell:[150,510],cone:[150,492],balloon:[150,296]})[W.pending.e]||null;return null;}
   if(st.k==='bus')return BUS&&performance.now()-BUS.t0>900&&!BUS.boarding?[200,390]:null;
@@ -1718,7 +1766,7 @@ function hintAt(){
     default:return [150,280];}}
   return null;
 }
-function hintSvg(){const h=hintAt();if(!h||RM&&false)return '';const [x,y]=h;
+function hintSvg(){if(!document.body.classList.contains('idle'))return '';const h=hintAt();if(!h||RM&&false)return '';const [x,y]=h;
   return `<circle cx="${f1(x)}" cy="${f1(y)}" r="30" fill="none" stroke="#FFC93C" stroke-width="7">${RM?'':'<animate attributeName="r" values="24;40;24" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.35;1" dur="1.2s" repeatCount="indefinite"/>'}</circle><circle cx="${f1(x)}" cy="${f1(y)}" r="30" fill="none" stroke="${INK}" stroke-width="2" opacity=".5"/>`;}
 function updateHint(){const g=document.getElementById('hint');if(g)g.innerHTML=hintSvg();}
 function renderAll(){renderTop();renderStage();renderPanel();}
@@ -2071,8 +2119,10 @@ function stationTapAt(x,y){const l=lvl();if(l.v!=='station')return;
 }
 
 // ---------- buttons ----------
-$('#rows').addEventListener('click',e=>{
+$('.app').addEventListener('click',e=>{
+  if(!e.target.closest('#rows,#fabs'))return;
   const b=e.target.closest('button');if(!b||quizOpen||b.disabled)return;const d=b.dataset,l=lvl();
+  if(d.nextstep){if(l.v==='adv'&&l.ready){pop(true);l.ready=false;renderPanel();stepDone(150);}return;}
   if(d.place){pop(true);enterPlace(d.place);return;}
   if(d.adv){pop(true);startAdventure();return;}
   if(d.prop){propDo();return;}
