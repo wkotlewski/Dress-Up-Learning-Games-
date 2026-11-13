@@ -19,6 +19,15 @@ Each screen shows only the next choice, and the game reads it out loud. A big **
 
 She can also tap the girl herself: her head for hats, her chest for tops, her legs for bottoms, her feet for shoes, her face for makeup, or her hands to go to the nail salon.
 
+### Playing vs. answering
+
+It's always clear whether she's playing or being asked something:
+
+- **Playing:** when she's dressing up, doing makeup, cleaning up, or on an adventure, the picture takes over the screen. The words sit in a slim strip above it, and the few buttons she needs (like **Done**) float on the picture. On a tablet or computer, the scene widens to fill the whole screen instead of sitting in a narrow box.
+- **Answering:** a question takes over the whole screen with a bright **Question time!** banner and big answer buttons. When she answers, she goes right back to the picture.
+
+She's free to explore. Nothing flashes "do this next" while she's busy. Things she can drag give a small wiggle now and then, so she knows they move. If she stops for a few seconds, a soft glow shows what to try next. In an adventure, when she finishes an activity (splashing, dancing, kicking goals), she can keep playing as long as she wants and taps **Next** when she's ready.
+
 ### Drag it on, drag it off
 
 She changes things by moving them in the picture, with very few buttons:
@@ -36,7 +45,7 @@ While she's dragging, a dashed yellow outline shows where to drop it. If she let
 
 Each place has an adventure: a few scenes in a row where she makes the girl do things. Dots show how far along she is. She plays it like a game, in two ways:
 
-- **Touch things in the picture:** the boots to put them on, a puddle to jump in, the bus to get on, a candle to blow out, the ball to bounce it. A glowing ring shows what to tap next.
+- **Touch things in the picture:** the boots to put them on, a puddle to jump in, the bus to get on, a candle to blow out, the ball to bounce it. If she stops for a few seconds, a glowing ring shows what to tap next.
 - **Game buttons on the picture**, named for that scene: **Walk** and **Jump** on the rainy sidewalk, **Pedal** and **Ring bell** on the bike, **Drive** and **Honk** on the bus, **Get on the bus**, **Go in school**, **Raise hand**, **Pick up** for shells, **Kick**, **Plié**, **Blow** and so on. Hold **Walk** (or Pedal or Drive) to keep moving, and **Back** to go back. At the stop sign the arrow buttons become **Look left** and **Look right**. On a computer, the arrow keys and the space bar work too.
 
 | Place | Clothes | Adventure |
