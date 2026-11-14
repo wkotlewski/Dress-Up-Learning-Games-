@@ -6,7 +6,7 @@ Touch-and-drag learning games for preschoolers. Things she can change sit right 
 
 ## Zahra's Dress-Up (`index.html`)
 
-A dress-up game for a girl turning 4 who is learning colors, shapes, numbers, how to spell her name, and good manners.
+A dress-up game for a kindergartner who is learning letters, sight words, numbers, shapes, how to spell her name, and good manners. Its questions follow her school's kindergarten curriculum.
 
 ### One step at a time
 
@@ -90,9 +90,19 @@ When she has enough stars, she taps a prize and answers **"Yes, please!"** The s
 
 When she taps **Nails**, the game asks if she wants to go to the nail salon. There, Nina the nail artist asks what to do next, and Zahra chooses: soak (pop the bubbles), shape (short, long, square or pointy "fake" nails), polish, sparkles, dry (count to five), lotion, or hand tattoos. Each step she finishes gets a checkmark.
 
+### Kindergarten path
+
+Questions follow the kindergarten curriculum at Etiwanda School District (Rancho Cucamonga, CA), in the order her class teaches it:
+
+- **Reading, from McGraw Hill Wonders:** the letters for each unit (M, A, S, then P, T, then I, N, C, and so on) in capital and little letters, the first sound of picture words, and the unit's sight words (*the, we, see*, then *a, like*, then *to, and, go*, and so on).
+- **Math, from Go Math!:** its 12 chapters in order. Counting to 5, comparing more and fewer, numbers 6 to 9, numbers to 10, adding, subtracting, numbers 11 to 19 with ten-frames, counting by ones and tens to 100, flat shapes (including rectangles and hexagons), solid shapes (sphere, cube, cylinder, cone), longer, shorter and taller, and sorting ("Which one doesn't belong?").
+- **Spelling ZAHRA** and **colors** come up now and then too.
+
+Most questions come from the unit she's on, with some review from earlier units. When she gets 5 of her last 6 right on the first try, she moves up to the next unit on her own. In the grown-ups corner you can see which unit she's on and use − and + to match her class. **Pre-K mix** switches back to the original mix of colors, counting, shapes, patterns and big and small.
+
 ### Learning and manners
 
-- **Questions** pop up before something new goes on and between adventure scenes: "Which one is pink?", "How many stars?", "Find the number 7!", "Find the letter B!", "What letter does Moon start with?", "Red, blue, red, blue… what comes next?", "Which one is big?", "Which one has more?", "Which one is the heart?", "Z, A, H… what comes next?" She can tap the answer or press **Say it!** and say it out loud. A wrong answer tells her what she picked and lets her try again.
+- **Questions** pop up before something new goes on and between adventure scenes. In Pre-K mix they include: "Which one is pink?", "How many stars?", "Find the number 7!", "Find the letter B!", "What letter does Moon start with?", "Red, blue, red, blue… what comes next?", "Which one is big?", "Which one has more?", "Which one is the heart?", "Z, A, H… what comes next?" She can tap the answer or press **Say it!** and say it out loud. A wrong answer tells her what she picked and lets her try again.
 - **Please and thank you:** at the salon, Nina offers each step and Zahra answers **"Yes, please!"** or **"No, thank you."** She finishes each step with **"Thank you, Nina!"** and Nina says "You're welcome!"
 - **Clean-up time:** after she plays somewhere, leaving brings up the toys on the floor. She drags each one into the toy box (or taps it), counting as she goes, "so we don't lose them."
 
@@ -109,7 +119,7 @@ Whenever the game says a word or phrase you recorded, it plays your voice, even 
 **Press and hold** the gear button for a second and a half to open it, like Star Knight League. A quick tap only shows "Grown-ups: press and hold", so she can't wander in. It has:
 
 - **How she's doing:** for each skill, how often she's right on the first try, what she's doing great at and what needs practice, plus a list of recently missed questions.
-- **Questions:** how often they pop up (off, some, lots, or every time), the level (easier: numbers 1 to 5, or turning 4: 1 to 10), and which skills to practice: colors, counting, numbers, shapes, spelling ZAHRA, letters, first-letter sounds, patterns, big and small, and more or fewer. Questions come up when she puts something on, between adventure scenes, and in class.
+- **Questions:** how often they pop up (off, some, lots, or every time), what to practice (the **kindergarten path**, with her reading unit and math chapter and − and + buttons, or the **Pre-K mix** with its easier or harder level), and which skills to practice: letters, first sounds, sight words, math, spelling ZAHRA and colors on the kindergarten path. Questions come up when she puts something on, between adventure scenes, and in class.
 - **Stars and prizes:** give stars (+1, +5, +10, +20, +50), take some away or set them to 0, make her earn double or triple stars, set the daily limit (20, 30, 50, 100 or none), edit the prize list (names, costs, pictures), restore the default prizes, clear the prizes she's gotten, and check off prizes once she has them.
 - **Clean-up time** on or off.
 - **Talking and your voice:** talking on or off, record your voice, voice type, pitch and speed.
