@@ -161,6 +161,13 @@ body:not(.idle) .pad .actb.glow{background:var(--pop)}
 .trow{display:grid;grid-template-columns:minmax(0,9em) 1fr 4em;gap:8px;align-items:center;font-family:system-ui,sans-serif;font-size:14px}
 .trow .bar i.mid{background:#FF8C26}.trow .bar i.low{background:#EE3B45}.trow .bar i.hi{background:var(--go)}
 .trow .n{text-align:right;font-variant-numeric:tabular-nums}
+.kline{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:2px solid var(--ink);border-radius:14px;padding:8px 10px;line-height:1.35}
+.kline small{opacity:.7}
+.kbtns{display:flex;gap:6px;flex:none}
+.kbtns button{width:46px;height:46px;border-radius:12px;border:3px solid var(--ink);background:var(--card);font-size:26px;font-weight:800;color:var(--ink);cursor:pointer}
+.qop{font-size:44px;font-weight:800;margin:0 4px}
+.gone{display:inline-flex;position:relative;opacity:.3}
+.gone::after{content:"";position:absolute;left:10%;right:10%;top:46%;height:5px;background:#EE3B45;border-radius:3px;transform:rotate(-35deg)}
 .checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .checks label{font-family:system-ui,sans-serif;font-size:15px;display:flex;gap:8px;align-items:center;background:#fff;border:2px solid #F0DCD0;border-radius:12px;padding:8px}
 .checks input{width:22px;height:22px}
@@ -275,16 +282,19 @@ body:not(.idle) .pad .actb.glow{background:var(--pop)}
 <div class="sheet" id="sheet" hidden>
   <div class="card corner" role="dialog" aria-labelledby="sheetH">
     <div class="chead"><h2 id="sheetH">Grown-ups corner</h2><button id="closeSheet">Close</button></div>
-    <div class="ver">Game version: Nov 13, 2026 (full-screen play, question time)</div>
+    <div class="ver">Game version: Nov 14, 2026 (kindergarten path)</div>
 
     <div class="sec"><h3>How she's doing</h3><div id="trackSet" style="display:flex;flex-direction:column;gap:8px"></div></div>
 
     <div class="sec"><h3>Questions</h3>
-      <p>Questions pop up when she puts something on, between adventure scenes, and in class. She answers by tapping, or by pressing the microphone and saying it.</p>
+      <p>Questions pop up when she puts something on, between adventure scenes, and in class at school. She answers by tapping, or by pressing the microphone and saying it.</p>
       <div class="lbl">How often</div>
       <div class="seg wrap" id="segQuiz"><button data-q="off">Off</button><button data-q="some">Some</button><button data-q="lots">Lots</button><button data-q="every">Every time</button></div>
-      <div class="lbl">Level</div>
-      <div class="seg" id="segLevel"><button data-lv="easy">Easier (1 to 5)</button><button data-lv="normal">Turning 4 (1 to 10)</button></div>
+      <div class="lbl">What to practice</div>
+      <div class="seg wrap" id="segCurr"><button data-cur="k">Kindergarten (Etiwanda)</button><button data-cur="prek">Pre-K mix</button></div>
+      <div id="kSet" style="display:flex;flex-direction:column;gap:8px"></div>
+      <div id="prekSet"><div class="lbl">Level</div>
+      <div class="seg" id="segLevel"><button data-lv="easy">Easier (1 to 5)</button><button data-lv="normal">Turning 4 (1 to 10)</button></div></div>
       <div class="lbl">Skills to practice</div>
       <div class="checks" id="skillSet"></div>
     </div>
@@ -354,7 +364,7 @@ const $=s=>document.querySelector(s);
 
 // ---------- paint & patterns ----------
 function starPath(){let d='';for(let i=0;i<10;i++){const r=i%2?0.21:0.5,a=-Math.PI/2+i*Math.PI/5;d+=(i?'L':'M')+f1(r*Math.cos(a)*100)/100+','+f1((r*Math.sin(a)+0.04)*100)/100;}return d+'Z';}
-const UNIT={star:starPath(),heart:'M0,0.44 C-0.66,0.02 -0.52,-0.56 0,-0.2 C0.52,-0.56 0.66,0.02 0,0.44Z',square:'M-0.42,-0.42H0.42V0.42H-0.42Z',triangle:'M0,-0.46L0.5,0.42H-0.5Z',circle:'M0.46,0 A0.46,0.46 0 1 1 -0.46,0 A0.46,0.46 0 1 1 0.46,0Z'};
+const UNIT={star:starPath(),heart:'M0,0.44 C-0.66,0.02 -0.52,-0.56 0,-0.2 C0.52,-0.56 0.66,0.02 0,0.44Z',square:'M-0.42,-0.42H0.42V0.42H-0.42Z',rectangle:'M-0.5,-0.27H0.5V0.27H-0.5Z',hexagon:'M0.48,0L0.24,0.416L-0.24,0.416L-0.48,0L-0.24,-0.416L0.24,-0.416Z',triangle:'M0,-0.46L0.5,0.42H-0.5Z',circle:'M0.46,0 A0.46,0.46 0 1 1 -0.46,0 A0.46,0.46 0 1 1 0.46,0Z'};
 const defs=document.getElementById('pdefs');
 function motif(ci){const n=COLORS[ci]?COLORS[ci][0]:'';return n==='White'?'#FF6DB0':n==='Yellow'?'#FF8C26':'#FFFFFF';}
 function paint(ci,p,size=18){
@@ -395,6 +405,8 @@ const ICONS={
   star:p=>uniU(`<path d="${UNIT.star}"/>`,p),
   circle:p=>uniU(`<path d="${UNIT.circle}"/>`,p),
   square:p=>uniU(`<path d="${UNIT.square}"/>`,p),
+  rectangle:p=>uniU(`<path d="${UNIT.rectangle}"/>`,p),
+  hexagon:p=>uniU(`<path d="${UNIT.hexagon}"/>`,p),
   triangle:p=>uniU(`<path d="${UNIT.triangle}"/>`,p),
   butterfly:p=>uniU('<ellipse cx="-0.22" cy="-0.14" rx="0.21" ry="0.18"/><ellipse cx="0.22" cy="-0.14" rx="0.21" ry="0.18"/><ellipse cx="-0.17" cy="0.17" rx="0.15" ry="0.13"/><ellipse cx="0.17" cy="0.17" rx="0.15" ry="0.13"/>',p)
     +`<circle cx="-0.24" cy="-0.15" r="0.06" fill="#fff" opacity=".85"/><circle cx="0.24" cy="-0.15" r="0.06" fill="#fff" opacity=".85"/><ellipse cx="0" cy="0" rx="0.06" ry="0.3" fill="${INK}"/>`+line('M-0.03,-0.27 Q-0.1,-0.42 -0.19,-0.45 M0.03,-0.27 Q0.1,-0.42 0.19,-0.45',INK,0.045),
@@ -879,13 +891,13 @@ const fresh=()=>({
   outfit:{top:{id:'tee',c:CI('Pink'),p:'hearts'},bottom:{id:'skirt',c:CI('Purple'),p:'plain'},shoes:{id:'sneaker',c:CI('White'),p:'plain'},hairAcc:{id:'bow',c:CI('Yellow'),p:'plain'}},
   makeup:{lips:null,cheeks:null,eyes:null},faceStamps:[],handStamps:[],nails:Array(10).fill(null)
 });
-const S=Object.assign(fresh(),{color:CI('Pink'),pat:'plain',nailShape:'long',stamp:'heart',quiz:'some',sound:true,cleanup:true,myVoice:true,voiceName:'',pitch:1.05,rate:.85,stars:0,starDay:null,dailyCap:30,prizes:null,claims:[],advDone:{},starMult:1,level:'normal',skills:null,stats:{},missed:[],walk:null,manner:null,cls:null,
+const S=Object.assign(fresh(),{color:CI('Pink'),pat:'plain',nailShape:'long',stamp:'heart',quiz:'some',sound:true,cleanup:true,myVoice:true,voiceName:'',pitch:1.05,rate:.85,stars:0,starDay:null,dailyCap:30,prizes:null,claims:[],advDone:{},starMult:1,level:'normal',curr:'k',k:null,skills:null,stats:{},missed:[],walk:null,manner:null,cls:null,
   play:null,played:false,salon:{done:{},bub:[],msg:'',dry:null,greeted:false,pops:0,lotion:0},clean:null});
 const KEY='zahra-dressup-v3';
 const persist=()=>({look:S.look,bg:S.bg,place:S.place,outfit:S.outfit,makeup:S.makeup,faceStamps:S.faceStamps,handStamps:S.handStamps,nails:S.nails});
-function save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign(persist(),{quiz:S.quiz,sound:S.sound,cleanup:S.cleanup,myVoice:S.myVoice,voiceName:S.voiceName,pitch:S.pitch,rate:S.rate,stars:S.stars,starDay:S.starDay,dailyCap:S.dailyCap,prizes:S.prizes,claims:S.claims,advDone:S.advDone,starMult:S.starMult,level:S.level,skills:S.skills,stats:S.stats,missed:S.missed})));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign(persist(),{quiz:S.quiz,sound:S.sound,cleanup:S.cleanup,myVoice:S.myVoice,voiceName:S.voiceName,pitch:S.pitch,rate:S.rate,stars:S.stars,starDay:S.starDay,dailyCap:S.dailyCap,prizes:S.prizes,claims:S.claims,advDone:S.advDone,starMult:S.starMult,level:S.level,curr:S.curr,k:S.k,skills:S.skills,stats:S.stats,missed:S.missed})));}catch(e){}}
 function load(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&typeof d==='object'){
-  ['look','bg','place','outfit','makeup','faceStamps','handStamps','nails','quiz','sound','cleanup','myVoice','voiceName','pitch','rate','stars','starDay','dailyCap','prizes','claims','advDone','starMult','level','skills','stats','missed'].forEach(k=>{if(d[k]!==undefined)S[k]=d[k];});
+  ['look','bg','place','outfit','makeup','faceStamps','handStamps','nails','quiz','sound','cleanup','myVoice','voiceName','pitch','rate','stars','starDay','dailyCap','prizes','claims','advDone','starMult','level','curr','k','skills','stats','missed'].forEach(k=>{if(d[k]!==undefined)S[k]=d[k];});
   if(!Array.isArray(S.nails)||S.nails.length!==10)S.nails=Array(10).fill(null);
   if(!SCENES[S.bg])S.bg='room';if(S.place&&!PLACES[S.place])S.place=null;if(!HAIRMETA[S.look.hair])S.look.hair='curly';}}catch(e){}}
 const hist=[];
@@ -1776,10 +1788,10 @@ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 let micOK=!!SR;
 const NUMACC={1:['one','1','won'],2:['two','2','to','too'],3:['three','3','tree','free'],4:['four','4','for','fore'],5:['five','5'],6:['six','6','sticks'],7:['seven','7'],8:['eight','8','ate'],9:['nine','9'],10:['ten','10']};
 const LETACC={C:['c','see','sea'],D:['d','dee'],E:['e','ee'],F:['f','ef'],G:['g','gee'],J:['j','jay'],L:['l','el','elle'],N:['n','en'],P:['p','pee','pea'],W:['w','double u'],Z:['z','zee','zed'],A:['a','ay','eh','hey','hay','aye'],H:['h','aitch','age','each','ach'],R:['r','are','our','ar'],B:['b','be','bee'],M:['m','em'],S:['s','es','ess'],O:['o','oh','owe'],T:['t','tea','tee'],K:['k','kay','okay']};
-const SHAPEACC={circle:['circle','circles'],square:['square','squares'],triangle:['triangle','triangles','try angle'],star:['star','stars'],heart:['heart','hearts','hart']};
+const SHAPEACC={circle:['circle','circles'],square:['square','squares'],triangle:['triangle','triangles','try angle'],star:['star','stars'],heart:['heart','hearts','hart'],rectangle:['rectangle','rectangles'],hexagon:['hexagon','hexagons']};
 const colAcc=n=>({Purple:['purple','perple','burple'],Pink:['pink','pinky']}[n]||[n.toLowerCase()]);
 const SHAPES=['circle','square','triangle','star','heart'];
-const SHAPEC={circle:'#2F86E8',square:'#36B65A',triangle:'#FF8C26',star:'#FFD02E',heart:'#FF6DB0'};
+const SHAPEC={circle:'#2F86E8',square:'#36B65A',triangle:'#FF8C26',star:'#FFD02E',heart:'#FF6DB0',rectangle:'#8E5BE8',hexagon:'#EE3B45'};
 const BG_COUNT={town:['star','stars','Yellow'],room:['heart','hearts','Pink'],rain:['drop','raindrops','Blue'],park:['flower','flowers','Pink'],ballroom:['gem','gems','Purple'],ballet:['star','stars','Yellow'],soccer:['ball','soccer balls','White'],bedroom:['teddy','teddy bears','Brown'],beach:['shell','shells','Pink']};
 let quizOpen=false,since=3;
 function others(pool,ans,n){return shuffle(pool.filter(x=>x!==ans)).slice(0,n);}
@@ -1789,6 +1801,7 @@ function skillOn(k){return !S.skills||S.skills[k]!==false;}
 const SOUNDW=[['Ball','ball','B','White'],['Star','star','S','Yellow'],['Heart','heart','H','Red'],['Flower','flower','F','Pink'],['Teddy','teddy','T','Brown'],['Dinosaur','dino','D','Green'],['Moon','moon','M','Yellow'],['Kite','kite','K','Orange'],['Book','book','B','Purple'],['Gem','gem','G','Blue'],['Tree','tree','T','Green'],['Bus','bus','B','Yellow'],['Shell','shell','S','Pink'],['Paw','paw','P','Brown']];
 const ABC=['A','B','C','D','E','F','G','H','J','K','L','M','N','O','P','R','S','T','W','Z'];
 function buildQuiz(meta){
+  if(S.curr!=='prek'){const q=kBuild(meta);if(q)return q;}
   const k=pickKind(meta);const q=buildKind(k,meta);q.kind=k;return q;
 }
 function pickKind(meta){
@@ -1836,6 +1849,151 @@ function buildKind(k,meta){
     return {text:`Which one is the ${a}?`,spoken:`Which one is the ${a}?`,vis:'',ans:a,right:`The ${a}!`,choices:ch.map(s=>({k:s,html:iconSvg(s,SHAPEC[s]),name:'the '+s,acc:SHAPEACC[s]}))};}
   return buildKind('count',meta);
 }
+// ---------- kindergarten path ----------
+// Follows Etiwanda School District kindergarten in teaching order: McGraw Hill Wonders (reading) and HMH Go Math! (math).
+// She starts at the unit or chapter a grown-up picks and moves up on her own after 5 of her last 6 questions from it are right on the first try.
+const KREAD=[
+  {L:['M','A','S'],W:['the','we','see']},
+  {L:['P','T'],W:['a','like']},
+  {L:['I','N','C'],W:['to','and','go']},
+  {L:['O','D'],W:['you','do']},
+  {L:['H','E','F','R'],W:['my','are','with','he']},
+  {L:['B','L','K'],W:['is','little','she','was']},
+  {L:['U','G','W','X','V'],W:['for','have','of','they','said','want']},
+  {L:['J','Q','Y','Z'],W:['here','me','this','what']},
+  {L:[],W:['help','too','has','play','where','look']},
+  {L:[],W:['good','who','come','does']}];
+const KMATH=[
+  {n:'Numbers 0 to 5',k:['kcount5','knum5']},
+  {n:'Comparing numbers to 5',k:['kcompare5','kcount5']},
+  {n:'Numbers 6 to 9',k:['kcount9','knum9']},
+  {n:'Numbers to 10',k:['kcount10','knum10','kbigger10','korder10']},
+  {n:'Addition',k:['kadd']},
+  {n:'Subtraction',k:['ksub']},
+  {n:'Numbers 11 to 19',k:['kteen']},
+  {n:'Counting to 100',k:['ktens','knext']},
+  {n:'Flat shapes',k:['kshape2']},
+  {n:'Solid shapes',k:['kshape3']},
+  {n:'Measuring',k:['kmeasure']},
+  {n:'Sorting',k:['ksort']}];
+const SOUNDK={M:[['Moon','moon','Yellow']],S:[['Star','star','Yellow'],['Shell','shell','Pink']],P:[['Paw','paw','Brown']],T:[['Teddy','teddy','Brown'],['Tree','tree','Green']],
+  C:[['Castle','castle','Yellow']],D:[['Dinosaur','dino','Green']],H:[['Heart','heart','Red']],F:[['Flower','flower','Pink']],R:[['Rainbow','rainbow','Red']],
+  B:[['Ball','ball','White'],['Book','book','Purple'],['Bus','bus','Yellow']],L:[['Lamp','lamp','Purple']],K:[['Kite','kite','Orange']],G:[['Gift','gift','Red']],W:[['Wave','wave','Blue']],N:[['Note','note','Purple']]};
+const ONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const TENSW=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+const numWord=n=>n<20?ONES[n]:n>=100?'one hundred':TENSW[Math.floor(n/10)]+(n%10?'-'+ONES[n%10]:'');
+const numAcc=n=>[...new Set([numWord(n),numWord(n).replace('-',' '),String(n)].concat(NUMACC[n]||[]))];
+const rint=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+function near(a,lo,hi,n=2){const pool=[];for(let i=lo;i<=hi;i++)if(i!==a)pool.push(i);pool.sort((x,y)=>Math.abs(x-a)-Math.abs(y-a));return shuffle([a,...shuffle(pool.slice(0,4)).slice(0,n)]);}
+function nq(ans,text,spoken,vis,ch,right){return {text,spoken,vis,ans:String(ans),choices:ch.map(n=>({k:String(n),html:String(n),name:numWord(n),acc:numAcc(n)})),right:right||cap(numWord(ans))+'!'};}
+const kThing=()=>{const [ic,pl,cn]=BG_COUNT[S.bg]||BG_COUNT.room;return {ic,pl,cn,one:pl.replace(/s$/,''),svg:(cls='cnt')=>iconSvg(ic,paint(CI(cn),'plain'),CI(cn),cls)};};
+const kName=(t,n)=>n===1?t.one:t.pl;
+const dots=n=>`<span style="display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:3px;width:84px">${Array.from({length:n},()=>`<svg viewBox="-1 -1 2 2" style="width:22px;height:22px"><circle r=".8" fill="#FFC93C" stroke="${INK}" stroke-width=".18"/></svg>`).join('')}</span>`;
+const tenFrame=k=>{let s='';for(let i=0;i<10;i++){const x=4+(i%5)*20,y=4+Math.floor(i/5)*20;s+=`<rect x="${x}" y="${y}" width="20" height="20" fill="#fff" stroke="${INK}" stroke-width="2"/>`+(i<k?`<circle cx="${x+10}" cy="${y+10}" r="7" fill="#FF6DB0" stroke="${INK}" stroke-width="1.5"/>`:'');}return `<svg viewBox="0 0 108 48" style="width:150px;height:67px">${s}</svg>`;};
+const tiles=a=>a.map(x=>`<div class="tile${x==='?'?' q':''}" style="${String(x).length>1?'width:58px;font-size:26px':''}">${x}</div>`).join('');
+const KSHAPE2=['circle','square','triangle','rectangle','hexagon'];
+const SOLIDS={sphere:['a ball'],cube:['a block'],cylinder:['a can'],cone:['an ice cream cone']};
+function solidSvg(k){const sw='stroke="'+INK+'" stroke-width=".045" stroke-linejoin="round"';let s='';
+  if(k==='sphere')s=`<circle r=".44" fill="#2F86E8" ${sw}/><ellipse cx="0" cy="0" rx=".44" ry=".13" fill="none" stroke="${INK}" stroke-width=".03" opacity=".45"/><ellipse cx="-.16" cy="-.2" rx=".12" ry=".07" fill="#fff" opacity=".7"/>`;
+  if(k==='cube')s=`<path d="M-.4,-.16H.18V.42H-.4Z" fill="#36B65A" ${sw}/><path d="M-.4,-.16L-.16,-.4H.42L.18,-.16Z" fill="#7FD68F" ${sw}/><path d="M.18,-.16L.42,-.4V.18L.18,.42Z" fill="#23893F" ${sw}/>`;
+  if(k==='cylinder')s=`<path d="M-.3,-.3V.3A.3,.1 0 0 0 .3,.3V-.3Z" fill="#FF8C26" ${sw}/><ellipse cx="0" cy="-.3" rx=".3" ry=".1" fill="#FFB66B" ${sw}/>`;
+  if(k==='cone')s=`<path d="M0,-.46L.32,.3A.32,.1 0 0 1 -.32,.3Z" fill="#FFD02E" ${sw}/><path d="M-.32,.3A.32,.1 0 0 0 .32,.3" fill="none" stroke="${INK}" stroke-width=".03" opacity=".5"/>`;
+  return `<svg viewBox="-.55 -.55 1.1 1.1" aria-hidden="true">${s}</svg>`;}
+function kState(){if(!S.k||typeof S.k!=='object')S.k={r:0,m:0,rh:[],mh:[]};return S.k;}
+const kUnit=(cur,share=.7)=>cur>0&&Math.random()>share?rint(0,cur-1):cur;
+const kLetters=u=>{const a=[];for(let i=0;i<=u;i++)a.push(...KREAD[i].L);return a;};
+const kWords=u=>{const a=[];for(let i=0;i<=u;i++)a.push(...KREAD[i].W);return a;};
+const HOMO=[['to','too','two'],['see','sea'],['for','four'],['here','hear']];
+function kPick(meta){
+  const w=[];
+  if(skillOn('letters')||skillOn('sounds')||skillOn('words'))w.push(['read',5]);
+  if(skillOn('math'))w.push(['math',5]);
+  if(skillOn('name'))w.push(['name',1]);
+  if(skillOn('colors')&&meta.c!=null)w.push(['color',1]);
+  const pool=[];w.forEach(([k,n])=>{for(let i=0;i<n;i++)pool.push(k);});
+  return pool.length?pick(pool):null;
+}
+function kBuild(meta){
+  const K=kState(),strand=kPick(meta);if(!strand)return null;
+  if(strand==='name'){const q=buildKind('name',meta);q.kind='name';return q;}
+  if(strand==='color'){const k=micOK&&Math.random()<.3?'colorSay':'colorFind',q=buildKind(k,meta);q.kind=k;return q;}
+  if(strand==='read'){
+    const u=kUnit(K.r),U=KREAD[u],learned=kLetters(K.r),letters=U.L.length?U.L:learned;
+    const kinds=[];if(skillOn('letters')&&letters.length)kinds.push('kletter');
+    if(skillOn('sounds')&&letters.some(L=>SOUNDK[L]))kinds.push('ksound');
+    if(skillOn('words'))kinds.push('kword');
+    const k=kinds.length?pick(kinds):'kword',q=kRead(k,u,letters,learned);q.kind=k;q.strand='read';q.unit=u;return q;}
+  const u=kUnit(K.m),k=pick(KMATH[u].k),q=kMath(k);q.kind=k;q.strand='math';q.unit=u;return q;
+}
+function kLetterPool(a,learned){let p=[...new Set(learned.filter(x=>x!==a))];if(p.length<2)p=p.concat(['Z','A','H','R','B','M','S','T'].filter(x=>x!==a&&!p.includes(x)));return p;}
+function kRead(k,u,letters,learned){
+  if(k==='kletter'){const a=pick(letters),low=Math.random()<.5,show=L=>low?L.toLowerCase():L,ch=shuffle([a,...others(kLetterPool(a,learned),a,2)]);
+    return {text:low?`Find the little ${a.toLowerCase()}!`:`Find the letter ${a}!`,spoken:low?`Find the little ${a}!`:`Find the letter ${a}!`,vis:'',ans:a,right:low?`Little ${a}!`:`${a}!`,
+      choices:ch.map(L=>({k:L,html:show(L),name:L,acc:LETACC[L]||[L.toLowerCase()]}))};}
+  if(k==='ksound'){const withW=letters.filter(L=>SOUNDK[L]),a=pick(withW),[w,ic,c]=pick(SOUNDK[a]),ch=shuffle([a,...others(kLetterPool(a,learned),a,2)]);
+    return {text:`What letter does ${w} start with?`,spoken:`${w}. What letter does ${w.toLowerCase()} start with?`,vis:iconSvg(ic,paint(CI(c),'plain'),CI(c),'thing'),ans:a,right:`${a}! ${w} starts with ${a}!`,
+      choices:ch.map(L=>({k:L,html:L,name:L,acc:LETACC[L]||[L.toLowerCase()]}))};}
+  const W=KREAD[u].W,a=pick(W),hom=(HOMO.find(g=>g.includes(a))||[a]),pool=kWords(K_r()).filter(x=>!hom.includes(x));
+  let ds=others(pool,a,2);if(ds.length<2)ds=ds.concat(others(['Zahra','mom','dad','cat'],a,2-ds.length));
+  return {text:`Find the word "${a}"`,spoken:`Find the word: ${a}. ${a}.`,vis:'',ans:a,right:`${a}! You read it!`,choices:shuffle([a,...ds]).map(x=>({k:x,html:x,cls:'word',name:x,acc:[x.toLowerCase()]}))};
+}
+const K_r=()=>kState().r;
+function kMath(k){const t=kThing();
+  if(/^kcount/.test(k)){const [lo,hi]=k==='kcount5'?[1,5]:k==='kcount9'?[6,9]:[1,10],n=rint(lo,hi);
+    return nq(n,`How many ${t.pl}?`,`How many ${t.pl}? Count them!`,Array.from({length:n},()=>t.svg()).join(''),near(n,Math.max(0,lo-2),hi+1));}
+  if(/^knum/.test(k)){const [lo,hi]=k==='knum5'?[0,5]:k==='knum9'?[6,9]:[0,10],a=rint(lo,hi);
+    return nq(a,`Find the number ${a}!`,`Find the number ${numWord(a)}!`,'',near(a,0,hi+1));}
+  if(k==='kcompare5'){const a=rint(2,5),b=rint(1,a-1),more=Math.random()<.6;
+    return {text:more?'Which group has more?':'Which group has fewer?',spoken:more?'Which group has more?':'Which group has fewer?',vis:'',ans:more?'a':'b',
+      right:more?`That one! ${cap(numWord(a))} is more than ${numWord(b)}.`:`That one! ${cap(numWord(b))} is fewer than ${numWord(a)}.`,
+      choices:shuffle(['a','b']).map(x=>({k:x,html:dots(x==='a'?a:b),name:`the group with ${numWord(x==='a'?a:b)}`,acc:[]}))};}
+  if(k==='kbigger10'){const a=rint(2,10),b=rint(1,a-1),big=Math.random()<.65,ans=big?a:b;
+    return nq(ans,big?'Which number is bigger?':'Which number is smaller?',`${big?'Which number is bigger':'Which number is smaller'}: ${numWord(a)} or ${numWord(b)}?`,'',shuffle([a,b]),
+      big?`${cap(numWord(a))}! ${cap(numWord(a))} is bigger than ${numWord(b)}.`:`${cap(numWord(b))}! ${cap(numWord(b))} is smaller than ${numWord(a)}.`);}
+  if(k==='korder10'){const s=rint(1,7),seq=[s,s+1,s+2],a=s+3;
+    return nq(a,'What number comes next?',seq.map(numWord).join(', ')+'... what comes next?',tiles([...seq,'?']),near(a,1,10));}
+  if(k==='kadd'){const tot=rint(2,Math.random()<.5?5:10),a=rint(1,tot-1),b=tot-a;
+    return nq(tot,`${a} and ${b} more. How many in all?`,`${cap(numWord(a))} ${kName(t,a)}, and ${numWord(b)} more. How many ${t.pl} in all?`,
+      Array.from({length:a},()=>t.svg()).join('')+'<b class="qop">+</b>'+Array.from({length:b},()=>t.svg()).join(''),near(tot,0,10),`${cap(numWord(tot))}! ${cap(numWord(a))} plus ${numWord(b)} is ${numWord(tot)}.`);}
+  if(k==='ksub'){const n=rint(2,Math.random()<.5?5:10),g=rint(1,n-1),left=n-g;
+    return nq(left,`${n} ${kName(t,n)}. ${g} go away. How many are left?`,`${cap(numWord(n))} ${kName(t,n)}. ${cap(numWord(g))} go away. How many are left?`,
+      Array.from({length:n},(_,i)=>i<left?t.svg():`<span class="gone">${t.svg()}</span>`).join(''),near(left,0,10),`${cap(numWord(left))}! ${cap(numWord(n))} take away ${numWord(g)} is ${numWord(left)}.`);}
+  if(k==='kteen'){const n=rint(11,19);
+    if(Math.random()<.5)return nq(n,`Find the number ${n}!`,`Find the number ${numWord(n)}!`,'',near(n,11,19));
+    return nq(n,'How many dots?','Ten dots, and some more. How many dots in all?',tenFrame(10)+tenFrame(n-10),near(n,11,19),`${cap(numWord(n))}! Ten and ${numWord(n-10)} is ${numWord(n)}.`);}
+  if(k==='ktens'){const s=rint(1,7)*10,seq=[s,s+10,s+20],a=s+30;
+    return nq(a,'Count by tens. What comes next?',seq.map(numWord).join(', ')+'... what comes next?',tiles([...seq,'?']),shuffle(a+10<=100?[a,a+10,a-10]:[a,a-10,a-20]));}
+  if(k==='knext'){const s=Math.random()<.5?rint(11,17):rint(21,96),seq=[s,s+1,s+2],a=s+3;
+    return nq(a,'What number comes next?',seq.map(numWord).join(', ')+'... what comes next?',tiles([...seq,'?']),shuffle(a+2<=100?[a,a+1,a+2]:[a,a-1,a-4]));}
+  if(k==='kshape2'){const a=pick(KSHAPE2),ch=shuffle([a,...others(KSHAPE2,a,2)]);
+    return {text:`Which one is the ${a}?`,spoken:`Which one is the ${a}?`,vis:'',ans:a,right:`The ${a}!`+(a==='hexagon'?' It has six sides.':a==='triangle'?' It has three sides.':''),choices:ch.map(s=>({k:s,html:iconSvg(s,SHAPEC[s]),name:'the '+s,acc:SHAPEACC[s]}))};}
+  if(k==='kshape3'){const ks=Object.keys(SOLIDS),a=pick(ks),ch=shuffle([a,...others(ks,a,2)]);
+    return {text:`Which one is the ${a}?`,spoken:`Which one is the ${a}? It looks like ${SOLIDS[a][0]}.`,vis:'',ans:a,right:`The ${a}! Like ${SOLIDS[a][0]}.`,choices:ch.map(s=>({k:s,html:solidSvg(s),name:'the '+s,acc:[s,s+'s']}))};}
+  if(k==='kmeasure'){const tall=Math.random()<.5,more=Math.random()<.6,cs=shuffle(['#FF6DB0','#2F86E8','#36B65A','#FF8C26','#8E5BE8']);
+    const pic=(x)=>{const big=x==='a',c=big?cs[0]:cs[1];
+      if(tall){const h=big?5:2;let s='';for(let i=0;i<h;i++)s+=`<rect x="34" y="${88-(i+1)*15}" width="32" height="15" rx="2" fill="${c}" stroke="${INK}" stroke-width="2.5"/>`;return `<svg viewBox="0 0 100 92" aria-hidden="true">${s}</svg>`;}
+      return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="${big?4:30}" y="38" width="${big?92:40}" height="24" rx="12" fill="${c}" stroke="${INK}" stroke-width="2.5"/></svg>`;};
+    const word=tall?(more?'taller':'shorter'):(more?'longer':'shorter'),ans=more?'a':'b';
+    return {text:`Which one is ${word}?`,spoken:`Which ${tall?'tower':'ribbon'} is ${word}?`,vis:'',ans,right:`That one! It's ${word}.`,choices:shuffle(['a','b']).map(x=>({k:x,html:pic(x),name:'that one',acc:[]}))};}
+  if(k==='ksort'){const byColor=Math.random()<.5,sh=pick(['circle','square','triangle','star','heart']),cols=shuffle([0,2,3,4,5,6]),c=cols[0],oc=cols[1],osh=pick(['circle','square','triangle','star','heart'].filter(x=>x!==sh));
+    const items=[0,1,2].map(i=>({k:'n'+i,html:iconSvg(sh,COLORS[c][1]),name:'that one',acc:[]})).concat([{k:'odd',html:iconSvg(byColor?sh:osh,COLORS[byColor?oc:c][1]),name:'that one',acc:[]}]);
+    return {text:"Which one doesn't belong?",spoken:"Which one doesn't belong?",vis:'',ans:'odd',right:`That one! It's a different ${byColor?'color':'shape'}.`,choices:shuffle(items)};}
+  return buildKind('count',{});
+}
+function kRecord(q,ok){
+  if(!q||!q.strand)return '';const K=kState(),rd=q.strand==='read',cur=rd?K.r:K.m;if(q.unit!==cur)return '';
+  const h=rd?(K.rh=K.rh||[]):(K.mh=K.mh||[]);h.push(ok?1:0);while(h.length>6)h.shift();
+  if(h.length>=6&&h.reduce((a,b)=>a+b,0)>=5){
+    if(rd&&K.r<KREAD.length-1){K.r++;K.rh=[];return ' You learned so much! Now we can learn new letters and words!';}
+    if(!rd&&K.m<KMATH.length-1){K.m++;K.mh=[];return ' You learned so much! Time for new math!';}
+  }
+  return '';
+}
+function kSetHTML(){const K=kState(),R=KREAD[K.r],M=KMATH[K.m],prog=h=>(h&&h.length)?`Right on the first try: ${h.reduce((a,b)=>a+b,0)} of the last ${h.length}`:'No questions at this level yet';
+  return `<p>Questions follow Etiwanda kindergarten in teaching order: <b>Wonders</b> for reading and <b>Go Math!</b> for math. She mostly gets questions from where she is, plus some review. She moves up on her own after 5 of her last 6 are right on the first try. Use − and + to match her class.</p>
+  <div class="kline"><div><b>Reading: Unit ${K.r+1} of ${KREAD.length}</b><br>${R.L.length?`Letters ${R.L.join(', ')} · `:'Review all letters · '}Words: ${R.W.join(', ')}<br><small>${prog(K.rh)}</small></div><div class="kbtns"><button data-kr="-1" aria-label="Reading unit back">−</button><button data-kr="1" aria-label="Reading unit forward">+</button></div></div>
+  <div class="kline"><div><b>Math: Chapter ${K.m+1} of ${KMATH.length}</b><br>${M.n}<br><small>${prog(K.mh)}</small></div><div class="kbtns"><button data-km="-1" aria-label="Math chapter back">−</button><button data-km="1" aria-label="Math chapter forward">+</button></div></div>`;}
+
 let Q=null,onDone=null,wrongs=0,rec=null;
 function startQuiz(meta,done){$('#pad').hidden=true;
   Q=buildQuiz(meta);onDone=done;wrongs=0;quizOpen=true;
@@ -1851,9 +2009,9 @@ function answer(k){
   const btn=$(`#qChoices [data-k="${k}"]`),c=Q.choices.find(x=>x.k===k);
   if(k===Q.ans){
     btn&&btn.classList.add('yes');pop(true);confetti();
-    {const sk=KIND_SKILL[Q.kind]||'counting';S.stats=S.stats||{};const x=S.stats[sk]=S.stats[sk]||{r:0,w:0};if(wrongs===0)x.r++;else{x.w++;S.missed=[{q:Q.text,a:Q.right.replace(/!$/,'')}].concat(S.missed||[]).slice(0,8);}save();}
+    {const sk=KIND_SKILL[Q.kind]||'counting';S.stats=S.stats||{};const x=S.stats[sk]=S.stats[sk]||{r:0,w:0};if(wrongs===0)x.r++;else{x.w++;S.missed=[{q:Q.text,a:Q.right.replace(/!.*$/,'')}].concat(S.missed||[]).slice(0,8);}var lvlUp=kRecord(Q,wrongs===0);save();}
     if(Q.nameIdx!=null){const t=$('#qVis').children[Q.nameIdx];if(t){t.textContent=Q.ans;t.classList.remove('q');}}
-    say('Yes! '+Q.right);earn(1);const wait=Q.nameIdx===4?2400:1300;Q=null;setTimeout(finishQuiz,wait);
+    say('Yes! '+Q.right+(lvlUp||''));earn(1);const wait=Q.nameIdx===4?2400:1300;Q=null;setTimeout(finishQuiz,wait);
   } else {
     wrongs++;if(btn){btn.classList.remove('no');void btn.offsetWidth;btn.classList.add('no');}
     say(c?`That's ${c.name}. Try again!`:'Try again!');
@@ -2181,10 +2339,12 @@ $('#titleBtn').addEventListener('click',()=>speakLevel());
 $('#undoBtn').addEventListener('click',()=>{if(!quizOpen)undo();});
 
 // grown-up sheet
-const SKILLS={colors:'Colors',counting:'Counting',numbers:'Numbers',shapes:'Shapes',name:'Spelling ZAHRA',letters:'Letters',sounds:'First letter sounds',patterns:'Patterns',sizes:'Big and small',more:'More or less'};
-const KIND_SKILL={colorFind:'colors',colorSay:'colors',count:'counting',nailCount:'counting',jersey:'numbers',numFind:'numbers',shape:'shapes',name:'name',letterFind:'letters',sound:'sounds',pattern:'patterns',size:'sizes',more:'more'};
+const SKILLS={colors:'Colors',counting:'Counting',numbers:'Numbers',shapes:'Shapes',name:'Spelling ZAHRA',letters:'Letters',sounds:'First letter sounds',patterns:'Patterns',sizes:'Big and small',more:'More or less',words:'Sight words',math:'Math (Go Math!)'};
+const PREK_SK=['colors','counting','numbers','shapes','name','letters','sounds','patterns','sizes','more'],K_SK=['letters','sounds','words','math','name','colors'];
+const skList=()=>S.curr==='prek'?PREK_SK:K_SK;
+const KIND_SKILL={colorFind:'colors',colorSay:'colors',count:'counting',nailCount:'counting',jersey:'numbers',numFind:'numbers',shape:'shapes',name:'name',letterFind:'letters',sound:'sounds',pattern:'patterns',size:'sizes',more:'more',kletter:'letters',ksound:'sounds',kword:'words',kcount5:'math',kcount9:'math',kcount10:'math',knum5:'math',knum9:'math',knum10:'math',kcompare5:'math',kbigger10:'math',korder10:'math',kadd:'math',ksub:'math',kteen:'math',ktens:'math',knext:'math',kshape2:'math',kshape3:'math',kmeasure:'math',ksort:'math'};
 function trackHTML(){
-  const st=S.stats||{},rows=Object.keys(SKILLS).map(k=>{const x=st[k]||{r:0,w:0},t=x.r+x.w,pct=t?Math.round(x.r/t*100):0;
+  const st=S.stats||{},rows=skList().map(k=>{const x=st[k]||{r:0,w:0},t=x.r+x.w,pct=t?Math.round(x.r/t*100):0;
     return {k,t,pct,html:`<div class="trow"><span>${SKILLS[k]}</span><span class="bar"><i class="${pct>=80?'hi':pct>=60?'mid':'low'}" style="width:${t?pct:0}%"></i></span><span class="n">${t?`${x.r}/${t}`:'—'}</span></div>`};});
   const tried=rows.filter(r=>r.t>=3),good=tried.filter(r=>r.pct>=80).map(r=>SKILLS[r.k]),need=tried.filter(r=>r.pct<60).map(r=>SKILLS[r.k]);
   const total=rows.reduce((a,r)=>a+r.t,0);
@@ -2197,7 +2357,9 @@ function trackHTML(){
 function renderSheet(){
   $('#trackSet').innerHTML=trackHTML();
   document.querySelectorAll('#segLevel button').forEach(b=>b.classList.toggle('on',b.dataset.lv===(S.level||'normal')));
-  $('#skillSet').innerHTML=Object.keys(SKILLS).map(k=>`<label><input type="checkbox" id="sk-${k}" data-skill="${k}" ${skillOn(k)?'checked':''}>${SKILLS[k]}</label>`).join('');
+  document.querySelectorAll('#segCurr button').forEach(b=>b.classList.toggle('on',b.dataset.cur===(S.curr==='prek'?'prek':'k')));
+  $('#kSet').hidden=S.curr==='prek';$('#prekSet').hidden=S.curr!=='prek';$('#kSet').innerHTML=kSetHTML();
+  $('#skillSet').innerHTML=skList().map(k=>`<label><input type="checkbox" id="sk-${k}" data-skill="${k}" ${skillOn(k)?'checked':''}>${SKILLS[k]}</label>`).join('');
   document.querySelectorAll('#segQuiz button').forEach(b=>b.classList.toggle('on',b.dataset.q===S.quiz));
   document.querySelectorAll('#segVoice button').forEach(b=>b.classList.toggle('on',(b.dataset.v==='1')===S.sound));
   document.querySelectorAll('#segClean button').forEach(b=>b.classList.toggle('on',(b.dataset.c==='1')===S.cleanup));
@@ -2226,6 +2388,11 @@ function openCorner(){renderSheet();$('#sheet').hidden=false;$('#sheet .card').s
 $('#closeSheet').addEventListener('click',()=>{$('#sheet').hidden=true;});
 $('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')$('#sheet').hidden=true;});
 $('#segLevel').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.level=b.dataset.lv;save();renderSheet();});
+$('#segCurr').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.curr=b.dataset.cur;save();renderSheet();});
+$('#kSet').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const K=kState();
+  if(b.dataset.kr){K.r=Math.max(0,Math.min(KREAD.length-1,K.r+ +b.dataset.kr));K.rh=[];}
+  if(b.dataset.km){K.m=Math.max(0,Math.min(KMATH.length-1,K.m+ +b.dataset.km));K.mh=[];}
+  save();renderSheet();});
 $('#skillSet').addEventListener('change',e=>{const k=e.target.dataset.skill;if(!k)return;S.skills=Object.assign({},S.skills,{[k]:e.target.checked});if(!Object.values(S.skills).some(Boolean)){S.skills[k]=true;e.target.checked=true;}save();});
 $('#segQuiz').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.quiz=b.dataset.q;save();renderSheet();});
 $('#segClean').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.cleanup=b.dataset.c==='1';save();renderSheet();});
